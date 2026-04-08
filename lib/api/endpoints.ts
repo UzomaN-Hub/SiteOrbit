@@ -12,8 +12,8 @@ export const apiEndpoints = {
     me: "/users/me",
   },
   workspaces: {
-    list: "/workspaces",
-    create: "/workspaces",
+    list: "/workspaces/",
+    create: "/workspaces/",
     byId: (workspaceId: string) => `/workspaces/${workspaceId}`,
     members: (workspaceId: string) => `/workspaces/${workspaceId}/members`,
     memberById: (workspaceId: string, memberId: string) =>
@@ -24,15 +24,15 @@ export const apiEndpoints = {
     domains: (workspaceId: string) => `/workspaces/${workspaceId}/domains`,
   },
   projects: {
-    list: "/projects",
-    create: "/projects",
+    list: "/projects/",
+    create: "/projects/",
     byId: (projectId: string) => `/projects/${projectId}`,
     publish: (projectId: string) => `/projects/${projectId}/publish`,
     unpublish: (projectId: string) => `/projects/${projectId}/unpublish`,
   },
   pages: {
-    list: "/pages",
-    create: "/pages",
+    list: "/pages/",
+    create: "/pages/",
     byId: (pageId: string) => `/pages/${pageId}`,
   },
   dashboard: {
