@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import { FaFacebook, FaLinkedin, FaGithub } from "react-icons/fa";
 import Features from "@/components/marketing/features";
 import Hero from "@/components/marketing/hero";
 import PricingTeaser from "@/components/marketing/pricing-teaser";
@@ -21,9 +21,21 @@ export default function MarketingPage() {
               The premium workspace for digital builders and elite development teams.
             </p>
             <div className="mt-4 flex gap-3">
-              <span className="size-8 rounded-full border border-white/8 bg-[#161b29]" />
-              <span className="size-8 rounded-full border border-white/8 bg-[#161b29]" />
-              <span className="size-8 rounded-full border border-white/8 bg-[#161b29]" />
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                <span className="flex size-8 items-center justify-center rounded-full border border-white/8 bg-[#161b29] text-[#b8c3d9] transition-colors hover:border-[#4fdbc8]/40 hover:text-[#4fdbc8]">
+                  <FaFacebook className="size-4" />
+                </span>
+              </a>
+              <a href="https://linkedin.com/in/uzoma-nwaiwu" target="_blank" rel="noopener noreferrer">
+                <span className="flex size-8 items-center justify-center rounded-full border border-white/8 bg-[#161b29] text-[#b8c3d9] transition-colors hover:border-[#4fdbc8]/40 hover:text-[#4fdbc8]">
+                  <FaLinkedin className="size-4" />
+                </span>
+              </a>
+              <a href="https://github.com/UzomaN-Hub" target="_blank" rel="noopener noreferrer">
+                <span className="flex size-8 items-center justify-center rounded-full border border-white/8 bg-[#161b29] text-[#b8c3d9] transition-colors hover:border-[#4fdbc8]/40 hover:text-[#4fdbc8]">
+                  <FaGithub className="size-4" />
+                </span>
+              </a>
             </div>
           </div>
 
