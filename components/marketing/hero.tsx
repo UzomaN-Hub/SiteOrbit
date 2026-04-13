@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -61,34 +62,16 @@ export default function Hero() {
           </Button>
         </div>
 
-        <div className="mt-12 w-full rounded-2xl bg-[#e6e6e6] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-10 lg:mt-16 lg:p-12">
-          <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-black/30 bg-[#111827] shadow-[0_25px_60px_rgba(0,0,0,0.35)]">
-            <div className="flex items-center gap-2 border-b border-white/5 px-4 py-3">
-              <span className="size-2 rounded-full bg-white/20" />
-              <span className="size-2 rounded-full bg-white/20" />
-              <span className="size-2 rounded-full bg-white/20" />
-            </div>
-
-            <div className="grid gap-4 p-4 lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
-              <div className="space-y-4 rounded-xl bg-[#0f1724] p-4">
-                <div className="h-3 w-24 rounded bg-white/10" />
-                <div className="space-y-3">
-                  <div className="h-9 rounded-md bg-white/5" />
-                  <div className="h-9 rounded-md bg-white/5" />
-                  <div className="h-9 rounded-md bg-white/5" />
-                  <div className="h-9 rounded-md bg-white/5" />
-                </div>
-                <div className="h-28 rounded-xl bg-[linear-gradient(180deg,rgba(79,219,200,0.14),rgba(79,219,200,0.02))]" />
-              </div>
-
-              <div className="space-y-4 rounded-xl bg-[#0f1724] p-4">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="h-28 rounded-xl bg-[linear-gradient(180deg,rgba(116,223,255,0.16),rgba(116,223,255,0.03))]" />
-                  <div className="h-28 rounded-xl bg-[linear-gradient(180deg,rgba(79,219,200,0.14),rgba(79,219,200,0.03))]" />
-                </div>
-                <div className="h-52 rounded-xl bg-[linear-gradient(180deg,rgba(116,223,255,0.18),rgba(116,223,255,0.02))]" />
-              </div>
-            </div>
+        <div className="mt-12 w-full overflow-hidden rounded-2xl bg-[#e6e6e6] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-10 lg:mt-16 lg:p-12">
+          <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-black/30 shadow-[0_25px_60px_rgba(0,0,0,0.35)]">
+            <Image
+              src="/images/hero-preview.png"
+              alt="SiteOrbit dashboard preview"
+              width={1200}
+              height={700}
+              className="w-full object-cover"
+              priority
+            />
           </div>
         </div>
       </div>

@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { BarChart3, Boxes, PenSquare, Users2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { cardReveal, floatingOrb, pageReveal, staggerContainer, staggerFast } from "@/lib/motion";
+
 
 const features = [
   {
@@ -11,24 +13,28 @@ const features = [
     description:
       "Move quickly with a builder that keeps sections clear, reusable, and easy for teams to manage.",
     icon: PenSquare,
+    image: "/images/Visual-Editing.jpg",
   },
   {
     title: "Workspace-aware collaboration",
     description:
       "Invite teammates, manage roles, and keep every workspace isolated without losing speed.",
     icon: Users2,
+    image: "/images/Workspace.jpg",
   },
   {
     title: "Composable site systems",
     description:
       "Build branded landing pages from flexible blocks instead of fragile one-off layouts.",
     icon: Boxes,
+    image: "/images/Composable-Sites.jpg",
   },
   {
     title: "Analytics with signal first",
     description:
       "Focus on the metrics that matter with readable charts, top pages, and source.",
     icon: BarChart3,
+    image: "/images/Analytics.jpg",
   },
 ];
 
@@ -107,7 +113,7 @@ export default function Features() {
                 whileHover={{ borderColor: "rgba(79,219,200,0.22)" }}
               >
                 <motion.div
-                  className="h-24 rounded-lg bg-[linear-gradient(180deg,rgba(79,219,200,0.1),rgba(79,219,200,0.02))]"
+                  className="relative h-24 overflow-hidden rounded-lg"
                   animate={{
                     opacity: [0.7, 1, 0.82],
                     scale: [1, 1.02, 1],
@@ -118,7 +124,15 @@ export default function Features() {
                     repeatType: "mirror",
                     ease: "easeInOut",
                   }}
-                />
+                >
+                  <Image
+                    src={feature.image}
+                    alt={feature.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                </motion.div>
               </motion.div>
             </motion.div>
           );
@@ -129,7 +143,7 @@ export default function Features() {
         variants={cardReveal}
         className="mt-12 max-w-3xl"
       >
-        <div className="text-3xl leading-tight text-[#dee2f5]">
+        <div className="text-2xl leading-tight text-[#dee2f5]">
           <span className="mr-2 text-[#4fdbc8]">”</span>
           SiteOrbit has fundamentally shifted how our agency ships digital
           experiences. The separation of concerns between design and data
