@@ -950,19 +950,6 @@ Named Framer Motion variants used consistently across the app:
 
 ---
 
-## UX Blueprint Summary
-
-The full UX blueprint is documented in `SiteOrbit_UX_Blueprint.pdf`. Key principles:
-
-- **Clarity over cleverness** — every screen explains itself through structure, not hidden interactions
-- **One strong action per screen** — every page has one obvious next step
-- **Workspace context is always visible** — users always know which company they are working in
-- **Builder confidence** — draft state, publish state, and unsaved changes are always visible
-- **Permission transparency** — if a user cannot edit something, the UI explains why
-- **Empty states that teach** — no silent dead ends; every empty state has a CTA and an explanation
-
----
-
 
 
 Built by **Uzoma Nwaiwu** · A flagship · Not a dashboard mockup
