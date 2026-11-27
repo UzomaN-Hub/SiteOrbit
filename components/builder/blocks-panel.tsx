@@ -1,23 +1,13 @@
 "use client";
 
-import type { ComponentType } from "react";
-import { motion } from "framer-motion";
-import { LayoutTemplate, MousePointer, Rows3, Type } from "lucide-react";
+import { Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { cardReveal, panelSlideLeft, staggerFast } from "@/lib/motion";
 import type { BuilderBlock } from "@/types/builder";
-
-export type BlocksPanelProps = {
-  onAddBlock: (block: BuilderBlock) => void;
-  disabled?: boolean;
-};
 
 function createId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
-
   return `block-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
@@ -25,69 +15,64 @@ type BlockTemplate = {
   type: BuilderBlock["type"];
   title: string;
   description: string;
-  icon: ComponentType<{ className?: string }>;
   create: () => BuilderBlock;
 };
 
-const blockTemplates: BlockTemplate[] = [
+/** Starting content is written as guidance, so clients never ship lorem ipsum. */
+export const blockTemplates: BlockTemplate[] = [
   {
     type: "hero",
     title: "Hero",
-    description: "Big title, subtitle, and CTA.",
-    icon: LayoutTemplate,
+    description: "Headline, one sentence and a button.",
     create: () => ({
       id: createId(),
       type: "hero",
       props: {
-        title: "Launch faster with SiteOrbit",
-        subtitle: "Create focused landing pages for modern teams.",
-        buttonLabel: "Get started",
-        buttonHref: "#",
+        title: "Say what this business does in one line",
+        subtitle: "Follow with one sentence on who it's for and why it's different.",
+        buttonLabel: "Book an appointment",
+        buttonHref: "",
       },
     }),
   },
   {
     type: "text",
-    title: "Text section",
-    description: "Simple content block for supporting copy.",
-    icon: Type,
+    title: "Text",
+    description: "A heading and a paragraph.",
     create: () => ({
       id: createId(),
       type: "text",
       props: {
-        title: "Tell your product story",
-        body: "Use this section to explain the value, flow, and offer clearly.",
+        title: "About us",
+        body: "Two or three sentences about the team, how long you've been doing this and where you work.",
       },
     }),
   },
   {
     type: "features",
     title: "Features",
-    description: "Three quick value points.",
-    icon: Rows3,
+    description: "Three short points side by side.",
     create: () => ({
       id: createId(),
       type: "features",
       props: {
-        title: "Why teams choose SiteOrbit",
-        items: ["Fast setup", "Clear collaboration", "Confident publishing"],
+        title: "What we offer",
+        items: ["First service", "Second service", "Third service"],
       },
     }),
   },
   {
     type: "cta",
-    title: "CTA",
-    description: "Final conversion block with action.",
-    icon: MousePointer,
+    title: "Call to action",
+    description: "A closing line and a button.",
     create: () => ({
       id: createId(),
       type: "cta",
       props: {
-        title: "Ready to launch?",
-        subtitle:
-          "Create, publish, and track your next campaign from one workspace.",
-        buttonLabel: "Start building",
-        buttonHref: "#",
+        title: "Ask the one thing you want visitors to do",
+        subtitle: "Remove any doubt with a short line, like how quickly you reply.",
+        buttonLabel: "Get in touch",
+        buttonHref: "",
       },
     }),
   },
@@ -96,80 +81,41 @@ const blockTemplates: BlockTemplate[] = [
 export default function BlocksPanel({
   onAddBlock,
   disabled = false,
-}: BlocksPanelProps) {
+}: {
+  onAddBlock: (block: BuilderBlock) => void;
+  disabled?: boolean;
+}) {
   return (
-    <motion.aside
-      variants={panelSlideLeft}
-      initial="hidden"
-      animate="visible"
-      className="h-full border-r border-white/8 bg-[#111522]"
+    <aside
+      aria-label="Add sections"
+      className="flex flex-col border-b border-border xl:h-[calc(100dvh-64px)] xl:overflow-y-auto xl:border-r xl:border-b-0"
     >
-      <motion.div
-        variants={panelSlideLeft}
-        className="border-b border-white/8 px-4 py-4"
-      >
-        <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#4fdbc8]">
-          Block library
-        </p>
-        <h2 className="mt-2 text-lg font-bold text-[#dee2f5]">Build your page</h2>
-        <p className="mt-1 text-sm leading-6 text-[#9aa6c0]">
-          Add visible sections first. Keep the page clear and focused.
-        </p>
-      </motion.div>
-
-      <motion.div
-        variants={staggerFast}
-        initial="hidden"
-        animate="visible"
-        className="space-y-3 p-4"
-      >
-        {blockTemplates.map((template) => {
-          const Icon = template.icon;
-
-          return (
-            <motion.button
-              key={template.type}
-              variants={cardReveal}
+      <div className="px-4 pt-4 pb-2">
+        <h2 className="type-ui text-text">Add a section</h2>
+        <p className="type-small text-text-muted">New sections go to the end of the page.</p>
+      </div>
+      <ul className="grid grid-cols-2 gap-1 p-2 sm:grid-cols-4 xl:grid-cols-1">
+        {blockTemplates.map((template) => (
+          <li key={template.type}>
+            <button
               type="button"
               disabled={disabled}
               onClick={() => onAddBlock(template.create())}
-              whileHover={disabled ? undefined : { y: -2, scale: 1.01 }}
-              whileTap={disabled ? undefined : { scale: 0.985 }}
-              transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="w-full rounded-xl border border-white/8 bg-[#1a1f2d] p-4 text-left transition hover:border-[#2cdbc2]/40 hover:bg-[#1d2434] disabled:cursor-not-allowed disabled:opacity-50"
+              className="group flex w-full items-start gap-3 rounded-sm px-2 py-2 text-left transition-colors duration-(--dur-fast) hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
             >
-              <div className="flex items-start gap-3">
-                <motion.div
-                  whileHover={disabled ? undefined : { rotate: -6, scale: 1.06 }}
-                  className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#162a27] text-[#4fdbc8]"
-                >
-                  <Icon className="size-4" />
-                </motion.div>
-
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold text-[#dee2f5]">
-                    {template.title}
-                  </div>
-                  <div className="mt-1 text-sm leading-6 text-[#9aa6c0]">
-                    {template.description}
-                  </div>
-                </div>
-              </div>
-            </motion.button>
-          );
-        })}
-
-        <motion.div variants={cardReveal}>
-          <Button
-            type="button"
-            variant="outline"
-            disabled
-            className="mt-2 h-10 w-full rounded-md border-white/8 bg-transparent text-[#9aa6c0]"
-          >
-            More starter blocks soon
-          </Button>
-        </motion.div>
-      </motion.div>
-    </motion.aside>
+              <Plus
+                aria-hidden="true"
+                className="mt-0.5 size-4 shrink-0 text-text-muted group-hover:text-text"
+                strokeWidth={1.5}
+              />
+              <span className="min-w-0">
+                <span className="block type-ui text-text">{template.title}</span>
+                <span className="block type-small text-text-muted">{template.description}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </aside>
   );
 }

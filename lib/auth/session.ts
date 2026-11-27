@@ -25,7 +25,10 @@ export function syncAuthCookieFromStorage() {
   if (!isBrowser()) return;
 
   try {
-    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    // The auth store persists to sessionStorage (store/auth-store.ts), so read
+    // from the same place. Reading localStorage here cleared the cookie on
+    // every page load and bounced signed-in users back to sign-in.
+    const raw = window.sessionStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) {
       clearAuthCookie();
       return;

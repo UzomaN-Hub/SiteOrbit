@@ -1,29 +1,30 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 
-import AuthCard from "@/components/auth/auth-card";
-import AuthForm from "@/components/auth/auth-form";
-import AuthOrbitVisual from "@/components/auth/auth-orbit-visual";
+import AuthHeading from "@/components/auth/auth-heading";
+import { SignUpForm } from "@/components/auth/auth-forms";
+import { safeRedirect } from "@/lib/utils/format";
 
-export default function SignUpPage() {
+export const metadata: Metadata = {
+  title: "Create your account",
+  description:
+    "Create a SiteOrbit account and set up a workspace for your first client.",
+};
+
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string | string[] }>;
+}) {
+  const { redirect } = await searchParams;
+  const target = safeRedirect(Array.isArray(redirect) ? redirect[0] : redirect);
+
   return (
-    <div className="flex justify-center">
-      <AuthCard
+    <>
+      <AuthHeading
         title="Create your account"
-        description="Start your SiteOrbit workspace and move from setup to publishing with a smoother onboarding path."
-        heroTitle="Build the workspace before the website."
-        heroDescription="Set up your team context, create your first orbit, and move into the builder with confidence."
-        visual={<AuthOrbitVisual mode="sign-up" />}
-        footer={
-          <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link href="/sign-in" className="text-primary hover:underline">
-              Sign in
-            </Link>
-          </p>
-        }
-      >
-        <AuthForm variant="sign-up" />
-      </AuthCard>
-    </div>
+        description="Set up a workspace for your first client in a few minutes."
+      />
+      <SignUpForm redirect={target} />
+    </>
   );
 }

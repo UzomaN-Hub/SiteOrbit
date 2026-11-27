@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -50,3 +51,12 @@ CLAUDE.md
 
 # repomix output
 frontend-output.md
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# e2e session written by tests/global-setup.ts
+/tests/.auth/

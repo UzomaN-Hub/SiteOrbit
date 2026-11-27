@@ -1,52 +1,73 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Hanken_Grotesk } from "next/font/google";
 
 import "./globals.css";
 import QueryProvider from "@/components/providers/query-provider";
-import ThemeProvider from "@/components/providers/theme-provider";
 import AuthActivityProvider from "@/components/providers/auth-activity-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { siteConfig } from "@/lib/config/site";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const display = Fraunces({
   subsets: ["latin"],
+  axes: ["SOFT", "WONK", "opsz"],
+  variable: "--font-fraunces",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const sans = Hanken_Grotesk({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-hanken",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: siteConfig.name,
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} · ${siteConfig.tagline}`,
+    template: `%s · ${siteConfig.name}`,
+  },
   description: siteConfig.description,
+  applicationName: siteConfig.name,
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} · ${siteConfig.tagline}`,
+    description: siteConfig.description,
+    url: siteConfig.url,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} · ${siteConfig.tagline}`,
+    description: siteConfig.description,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#111214",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${display.variable} ${sans.variable}`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ThemeProvider>
-          <QueryProvider>
-            <TooltipProvider delayDuration={150}>
-              <AuthActivityProvider>
-                {children}
-                <Toaster richColors position="top-right" />
-              </AuthActivityProvider>
-            </TooltipProvider>
-          </QueryProvider>
-        </ThemeProvider>
+      <body>
+        <QueryProvider>
+          <TooltipProvider delayDuration={300}>
+            <AuthActivityProvider>
+              {children}
+              <Toaster />
+            </AuthActivityProvider>
+          </TooltipProvider>
+        </QueryProvider>
       </body>
     </html>
   );

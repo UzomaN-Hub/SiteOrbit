@@ -7,29 +7,21 @@ const protectedRoutes = [
   "/builder",
   "/analytics",
   "/team",
-  "/templates",
   "/domains",
   "/settings",
 ];
 
-const publicAuthRoutes = [
-  "/sign-in",
-  "/sign-up",
-  "/forgot-password",
-  "/accept-invite",
-];
+// Signed-in visitors are sent to the dashboard from these. /accept-invite is
+// deliberately not here: a signed-in user has to reach it to accept.
+const guestOnlyRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
 
 function matchesRoute(pathname: string, routes: string[]) {
-  return routes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
+  return routes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 }
 
 export default function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const hasToken = Boolean(
-    request.cookies.get("siteorbit_access_token")?.value
-  );
+  const hasToken = Boolean(request.cookies.get("siteorbit_access_token")?.value);
 
   if (matchesRoute(pathname, protectedRoutes) && !hasToken) {
     const signInUrl = new URL("/sign-in", request.url);
@@ -37,7 +29,7 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  if (matchesRoute(pathname, publicAuthRoutes) && hasToken) {
+  if (matchesRoute(pathname, guestOnlyRoutes) && hasToken) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -51,12 +43,10 @@ export const config = {
     "/builder/:path*",
     "/analytics/:path*",
     "/team/:path*",
-    "/templates/:path*",
     "/domains/:path*",
     "/settings/:path*",
     "/sign-in",
     "/sign-up",
     "/forgot-password",
-    "/accept-invite",
   ],
 };

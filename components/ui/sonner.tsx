@@ -1,49 +1,35 @@
-"use client"
+"use client";
 
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
-import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
+import { AlertTriangle, Check, Info } from "lucide-react";
+import { Toaster as Sonner } from "sonner";
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
-
+/** Toasts: bottom right, 4 seconds, icon plus one sentence. */
+function Toaster() {
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
+      theme="dark"
+      position="bottom-right"
+      duration={4000}
+      gap={8}
       icons={{
-        success: (
-          <CircleCheckIcon className="size-4" />
-        ),
-        info: (
-          <InfoIcon className="size-4" />
-        ),
-        warning: (
-          <TriangleAlertIcon className="size-4" />
-        ),
-        error: (
-          <OctagonXIcon className="size-4" />
-        ),
-        loading: (
-          <Loader2Icon className="size-4 animate-spin" />
-        ),
+        success: <Check className="size-4" strokeWidth={1.5} />,
+        error: <AlertTriangle className="size-4 text-brand" strokeWidth={1.5} />,
+        info: <Info className="size-4" strokeWidth={1.5} />,
+        warning: <AlertTriangle className="size-4 text-brand" strokeWidth={1.5} />,
       }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
       toastOptions={{
+        unstyled: true,
         classNames: {
-          toast: "cn-toast",
+          toast:
+            "flex w-[356px] max-w-[calc(100vw-32px)] items-start gap-3 rounded-md border border-border bg-surface-2 p-4 text-text shadow-float",
+          title: "type-ui text-text",
+          description: "mt-1 type-small text-text-muted",
+          icon: "mt-0.5 text-text",
+          actionButton: "ml-auto type-ui underline underline-offset-[3px]",
         },
       }}
-      {...props}
     />
-  )
+  );
 }
 
-export { Toaster }
+export { Toaster };
