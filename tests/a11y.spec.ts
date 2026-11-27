@@ -4,6 +4,11 @@ import { expect, test } from "@playwright/test";
 import { hasCredentials, publicPages, signIn } from "./helpers";
 
 async function seriousViolations(page: import("@playwright/test").Page) {
+  // Let entrance fades finish: mid-fade text is partly transparent, which axe
+  // would report as low contrast.
+  await page.evaluate(() =>
+    Promise.all(document.getAnimations().map((animation) => animation.finished.catch(() => null)))
+  );
   const results = await new AxeBuilder({ page }).exclude("nextjs-portal").analyze();
   return results.violations
     .filter((violation) => violation.impact === "serious" || violation.impact === "critical")
