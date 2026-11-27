@@ -60,7 +60,7 @@ export default function AcceptInvite({ token }: { token: string | null }) {
         <Button asChild size="auth" className="w-full">
           <Link href={`/sign-in?redirect=${encodeURIComponent(back)}`}>Sign in to accept</Link>
         </Button>
-        <Button asChild variant="outline" size="auth" className="w-full">
+        <Button asChild variant="link" size="auth" className="self-center">
           <Link href={`/sign-up?redirect=${encodeURIComponent(back)}`}>Create an account</Link>
         </Button>
       </div>

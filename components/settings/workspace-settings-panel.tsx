@@ -85,7 +85,7 @@ export default function WorkspaceSettingsPanel({
         </fieldset>
         {canManageSettings ? (
           <CardFooter>
-            <Button type="button" variant="outline" disabled={!dirty || isSaving} onClick={onReset}>
+            <Button type="button" variant="link" disabled={!dirty || isSaving} onClick={onReset}>
               Discard changes
             </Button>
             <Button type="submit" disabled={!dirty} loading={isSaving}>

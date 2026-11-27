@@ -186,7 +186,7 @@ export default function SitesTable({
           </div>
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <AlertDialogCancel asChild>
-              <Button variant="outline" disabled={deleting}>
+              <Button variant="link" disabled={deleting}>
                 Cancel
               </Button>
             </AlertDialogCancel>

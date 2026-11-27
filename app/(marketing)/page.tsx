@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 import Logo from "@/components/brand/logo";
 import { GitHubIcon } from "@/components/auth/oauth-buttons";
@@ -54,7 +54,14 @@ const plans = [
     name: "Starter",
     price: "$49",
     period: "per month",
-    points: ["Up to 3 sites", "Visits and top pages for each site", "One workspace"],
+    includes: null,
+    points: [
+      "Up to 3 sites",
+      "The visual builder with every section",
+      "Visits and top pages for each site",
+      "Custom domains",
+      "One workspace",
+    ],
     cta: { label: "Choose Starter", href: "/sign-up" },
     recommended: false,
   },
@@ -62,10 +69,13 @@ const plans = [
     name: "Professional",
     price: "$129",
     period: "per month",
+    includes: "Everything in Starter, plus",
     points: [
       "Unlimited sites",
+      "A separate workspace for every client",
       "Owner, admin, editor and viewer roles",
-      "A workspace for every client",
+      "Brand settings for each client",
+      "Traffic sources and 90 days of history",
     ],
     cta: { label: "Start free", href: "/sign-up" },
     recommended: true,
@@ -74,13 +84,19 @@ const plans = [
     name: "Enterprise",
     price: "Custom",
     period: "billed yearly",
-    points: ["Your own branding instead of ours", "Priority support", "Help moving existing sites"],
+    includes: "Everything in Professional, plus",
+    points: [
+      "Your own branding instead of ours",
+      "Priority support",
+      "Help moving your existing sites",
+      "Invoicing and a custom contract",
+    ],
     cta: { label: "Contact sales", href: siteConfig.contactHref },
     recommended: false,
   },
 ];
 
-const section = "mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8";
+const section = "mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8";
 
 function LinkedInIcon() {
   return (
@@ -100,7 +116,7 @@ export default function LandingPage() {
 
       <main id="main">
         {/* Hero */}
-        <section className={cn(section, "grid items-center gap-12 py-16 lg:grid-cols-[55fr_45fr] lg:py-24")}>
+        <section className={cn(section, "grid items-center gap-12 py-16 lg:grid-cols-[1fr_1fr] lg:gap-16 lg:py-24")}>
           <div className="flex flex-col items-start">
             <h1 className="type-display max-w-[16ch] text-text" aria-label={headline}>
               {words.map((word, index) => (
@@ -115,16 +131,19 @@ export default function LandingPage() {
               className="hero-follow flex flex-col items-start"
               style={{ "--follow-delay": followDelay } as React.CSSProperties}
             >
-              <p className="mt-6 max-w-[44ch] type-body-lg text-text-muted">
+              <p className="mt-8 max-w-[44ch] type-body-lg text-text-muted">
                 SiteOrbit is a website builder for teams. Each client gets its own workspace,
                 its own domain and its own analytics.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <Button asChild size="lg">
                   <Link href="/sign-up">Start free</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
-                  <a href="#how-it-works">See how it works</a>
+                <Button asChild variant="link" size="lg">
+                  <a href="#how-it-works">
+                    See how it works
+                    <ArrowRight aria-hidden="true" />
+                  </a>
                 </Button>
               </div>
             </div>
@@ -140,7 +159,7 @@ export default function LandingPage() {
               width={1200}
               height={600}
               priority
-              sizes="(min-width: 1024px) 480px, 100vw"
+              sizes="(min-width: 1024px) 560px, 100vw"
               className="h-auto w-full"
             />
           </figure>
@@ -173,7 +192,7 @@ export default function LandingPage() {
             <div className="relative mt-12">
               <span
                 aria-hidden="true"
-                className="draw-line absolute top-[17px] right-0 left-0 hidden h-px bg-border-strong md:block"
+                className="draw-line absolute top-[20px] right-0 left-0 hidden h-px bg-border-strong md:block"
               />
               <ol className="relative grid gap-10 md:grid-cols-3 md:gap-8">
                 {steps.map((step, index) => (
@@ -183,7 +202,7 @@ export default function LandingPage() {
                     style={{ "--i": index + 1 } as React.CSSProperties}
                     className="flex flex-col gap-3"
                   >
-                    <span className="w-fit bg-bg pr-4 font-display text-[28px] leading-none font-medium text-text-muted tabular">
+                    <span className="w-fit bg-bg pr-4 font-display text-[40px] leading-none font-medium text-text-muted tabular">
                       {index + 1}
                     </span>
                     <h3 className="type-h3 text-text">{step.title}</h3>
@@ -204,7 +223,7 @@ export default function LandingPage() {
             <p className="mt-2 type-body text-text-muted">
               Every plan includes the builder, analytics and custom domains.
             </p>
-            <div className="mt-12 grid gap-4 lg:grid-cols-3">
+            <div className="mt-16 grid gap-4 lg:grid-cols-3 lg:items-stretch">
               {plans.map((plan, index) => (
                 <article
                   key={plan.name}
@@ -212,8 +231,9 @@ export default function LandingPage() {
                   data-slot="card"
                   style={{ "--i": index } as React.CSSProperties}
                   className={cn(
-                    "flex flex-col rounded-md border bg-surface-1 p-4 sm:p-6",
-                    plan.recommended ? "border-border-strong" : "border-border"
+                    "flex flex-col rounded-md border bg-surface-1 p-6 sm:p-8",
+                    // The recommended plan stands taller than its neighbours.
+                    plan.recommended ? "border-border-strong lg:-mt-8 lg:pt-12" : "border-border"
                   )}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -224,7 +244,12 @@ export default function LandingPage() {
                     <span className="type-h1 tabular text-text">{plan.price}</span>
                     <span className="type-small text-text-muted">{plan.period}</span>
                   </p>
-                  <ul className="mt-6 flex flex-1 flex-col gap-3">
+                  {plan.includes ? (
+                    <p className="mt-8 type-ui text-text-muted">{plan.includes}:</p>
+                  ) : (
+                    <p className="mt-8 type-ui text-text-muted">What you get:</p>
+                  )}
+                  <ul className="mt-4 flex flex-1 flex-col gap-3">
                     {plan.points.map((point) => (
                       <li key={point} className="flex items-start gap-2 type-body text-text">
                         <Check
@@ -239,7 +264,8 @@ export default function LandingPage() {
                   <Button
                     asChild
                     variant={plan.recommended ? "primary" : "outline"}
-                    className="mt-8 w-full"
+                    size="lg"
+                    className="mt-10 w-full"
                   >
                     {plan.cta.href.startsWith("/") ? (
                       <Link href={plan.cta.href}>{plan.cta.label}</Link>

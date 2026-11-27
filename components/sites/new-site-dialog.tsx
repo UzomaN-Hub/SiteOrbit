@@ -100,7 +100,7 @@ export default function NewSiteDialog({
           </Field>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="link">
                 Cancel
               </Button>
             </DialogClose>
