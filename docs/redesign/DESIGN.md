@@ -69,15 +69,15 @@ Use only these sizes. Tailwind names in brackets.
 
 | Token | Size / line height | Family, weight | Use |
 |---|---|---|---|
-| `display` | clamp(40px, 6vw, 60px) / 1.02, tracking -0.02em | Fraunces 600 | Landing hero headline only |
-| `h1` | 36px / 1.1, tracking -0.015em | Fraunces 600 | Page titles on marketing pages |
-| `h2` | 28px / 1.15, tracking -0.01em | Fraunces 600 | Section titles, auth page title, dashboard page title |
-| `h3` | 20px / 1.3 | Fraunces 500 | Card and panel titles |
-| `body-lg` | 18px / 1.6 | Hanken 400 | Hero sub-copy, intro paragraphs |
-| `body` | 15px / 1.55 | Hanken 400 | Default |
-| `ui` | 14px / 1.4 | Hanken 500 | Buttons, tabs, nav, table cells |
-| `label` | 13px / 1.4 | Hanken 500 | Form labels, table headers |
-| `small` | 12px / 1.4 | Hanken 400 | Helper text, timestamps, footnotes |
+| `display` | clamp(44px, 7vw, 76px) / 1.0, tracking -0.02em | Fraunces 600 | Landing hero headline only |
+| `h1` | 44px / 1.08, tracking -0.015em | Fraunces 600 | Page titles on marketing pages |
+| `h2` | 34px / 1.12, tracking -0.01em | Fraunces 600 | Section titles, auth page title, dashboard page title |
+| `h3` | 22px / 1.3 | Fraunces 500 | Card and panel titles |
+| `body-lg` | 20px / 1.6 | Hanken 400 | Hero sub-copy, intro paragraphs |
+| `body` | 17px / 1.6 | Hanken 400 | Default |
+| `ui` | 15px / 1.4 | Hanken 500 | Buttons, tabs, nav, table cells |
+| `label` | 14px / 1.4 | Hanken 500 | Form labels, table headers |
+| `small` | 13px / 1.4 | Hanken 400 | Helper text, timestamps, footnotes |
 
 Rules:
 - Headings use `text-wrap: balance`. Running text maxes out at 65ch.
@@ -111,15 +111,15 @@ Heights also follow role and importance, so the page has rhythm instead of a gri
 
 | Element | Size | Why |
 |---|---|---|
-| Button `sm` | 32px tall, 12px side padding | Dense areas: top bar, table rows, toolbars |
-| Button `md` | 40px tall, 16px side padding | Default for forms and page actions |
-| Button `lg` | 48px tall, 24px side padding | Only the landing hero and closing call to action, where the action is the point of the screen |
-| Input | 40px tall in the dashboard, 44px on auth pages | Auth forms are used on phones more often, so they get a bigger touch target |
-| Badge | 20px tall, 6px side padding | Labels sit inside rows and must not compete with buttons |
+| Button `sm` | 36px tall, 16px side padding | Dense areas: top bar, table rows, toolbars |
+| Button `md` | 44px tall, 20px side padding | Default for forms and page actions |
+| Button `lg` | 56px tall, 28px side padding | Only the landing hero and closing call to action, where the action is the point of the screen |
+| Input | 44px tall in the dashboard, 48px on auth pages | Auth forms are used on phones more often, so they get a bigger touch target |
+| Badge | 24px tall, 8px side padding | Labels sit inside rows and must not compete with buttons |
 | Checkbox | 16px | Smaller than text height so it doesn't dominate a list |
-| Menu item | 36px | Between a badge and a button: easy to hit, still compact |
-| Table row | 56px | Room for a two-line cell (site name plus domain) |
-| Top bar | 56px dashboard, 64px landing | The marketing bar gets more air; the app bar stays compact |
+| Menu item | 40px | Between a badge and a button: easy to hit, still compact |
+| Table row | 64px | Room for a two-line cell (site name plus domain) |
+| Top bar | 64px dashboard, 72px landing | The marketing bar gets more air; the app bar stays compact |
 | Avatar | 28px user (top bar), 20px workspace (switcher), 32px in member lists | Size follows how much attention the context needs |
 
 Rules:
@@ -141,14 +141,14 @@ All interactive components have these states: default, hover, active (pressed), 
 
 ### Buttons
 
-Three sizes from §4: `sm` 32px, `md` 40px, and `lg` 48px (landing CTAs only). Text uses `ui` (14px, 500), or 16px for `lg`. Icons are 16px with an 8px gap. Radius `--r-sm` (6px).
+Three sizes from §4: `sm` 36px, `md` 44px, and `lg` 56px (landing CTAs and pricing). Text uses `ui` (15px, 500), or 17px for `lg`. Icons are 16px with an 8px gap. Radius `--r-sm` (6px).
 
 | Variant | Background | Border | Text | Hover | When to use |
 |---|---|---|---|---|---|
 | **Primary** | `--accent` | none | `--on-accent` | `--accent-hover` | The single main action on a screen: "Start free", "Sign in", "New site", "Publish". Max one per view. |
-| **Outline** | transparent (the page shows through) | 1px `--border-strong` | `--text` | bg `--surface-2`, border `--text-muted` | Secondary actions next to a primary: "Sign in" in the nav, "See how it works", "Cancel", OAuth buttons. |
+| **Outline** | transparent (the page shows through) | 1px `--border-strong` | `--text` | bg `--surface-2`, border `--text-muted` | Standalone or peer actions with no primary beside them: OAuth buttons, "Try again", "Delete site", the non-recommended pricing plans. |
 | **Ghost** | transparent | none | `--text` | bg `--surface-2` | Low-emphasis or repeated actions: toolbar icons, row actions, "Show password", menu triggers. |
-| **Link** | transparent | none | `--text`, underline offset 3px | underline thickens to 2px | Inline text actions: "Forgot password?", "Create an account". |
+| **Link** | transparent | none | `--text`, `--text-faint` underline, offset 6px | underline turns `--text` and thickens to 2px; a trailing arrow nudges right | **The secondary action beside a primary** ("Sign in" in the nav, "See how it works", "Cancel", "Discard changes") and inline text actions. Two boxes side by side read as equal choices; a filled button plus an underlined link makes the main action obvious. |
 
 Notes:
 - Outline and ghost buttons have no fill, so they take the page background, but they stay clearly visible: outline through its `--border-strong` border, and ghost through full-strength `--text` and an icon or a hover fill.

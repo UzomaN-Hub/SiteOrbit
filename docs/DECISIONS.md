@@ -1,6 +1,6 @@
 # Decisions
 
-Why things are the way they are. Newest first. Each entry: the context, what was decided, and what it costs.
+Why things are the way they are, grouped by session. Each entry: the context, what was decided, and what it costs.
 
 ---
 
@@ -71,3 +71,21 @@ The API rate-limits logins to 5 a minute. `tests/global-setup.ts` signs in once 
 
 ### D-001 · Client theme defaults are customer content
 The defaults for a client's own site theme (`lib/constants/branding.ts`, mirrored in the API's `app/schemas/theme.py`) are the one place outside `globals.css` allowed to hold hex values. They used to be SiteOrbit's old teal UI colours, which leaked our branding into client sites.
+
+---
+
+## 2026-11-27 · Review feedback from Uzoma
+
+### D-018 · Larger type and controls
+**Context.** The first pass used 15px body text and 40px controls. Uzoma found the text hard to read.
+**Decision.** Body is now 17px, UI text 15px, labels 14px and small text 13px. Headings are larger (h2 34px, display up to 76px). Buttons are 36, 44 and 56px; inputs are 44px (48px on auth); table rows are 64px. `DESIGN.md` §3–4 are updated to match.
+
+### D-017 · The secondary button is a link, not a second box
+**Context.** A filled button next to an outline button still read as two similar boxes.
+**Decision.** When a secondary action sits beside a primary one ("Sign in" beside "Start free", "See how it works", "Cancel", "Discard changes"), it's an underlined text link. Outline is kept for standalone and peer actions (Google and GitHub, "Try again", "Delete site", non-recommended pricing plans).
+
+### D-016 · Pricing shows what each plan adds
+The recommended plan stands 32px taller. Professional and Enterprise lists start with "Everything in Starter, plus" and "Everything in Professional, plus", so each card only lists what's new.
+
+### D-015 · READMEs restored
+The original READMEs (frontend and backend) were replaced in the first pass without asking. Both are restored exactly as written; README changes now go through Uzoma first.

@@ -15,18 +15,22 @@ Status of the SiteOrbit redesign and what comes next. Update this at the end of 
 | 4 · Dashboard shell | Done | Top bar and tabs, no sidebar; Sites home; restyled Analytics, Team, Domains, Settings; full-screen builder |
 | 5 · Landing and copy | Done | New copy, real product screenshot, no fake proof or dead links |
 | 6 · Motion | Done | CSS only; respects reduced motion; visible without JavaScript |
+| Review round 1 | Done | Bigger type and controls, link-style secondary buttons, taller recommended plan, "Everything in…, plus" pricing lists (D-015 to D-018) |
 | 7 · Final pass | Done | 64/64 Playwright tests (desktop and mobile), design lint clean, screenshots in `docs/redesign/screenshots/` |
-| Repo hygiene | Done | CI (two jobs), Dependabot, PR template, CONTRIBUTING, README, `.env.example` |
-| Backend (minimal) | Done | CI, Dependabot, README rewritten, dev requirements split out, client theme defaults updated |
+| Repo hygiene | Done | CI (two jobs), Dependabot, PR template, CONTRIBUTING, `.env.example`. Your original READMEs are kept as written |
+| Backend (minimal) | Done | CI, Dependabot, dev requirements split out, client theme defaults, opt-in CORS and OAuth support for Vercel previews |
 
 ## Waiting on Uzoma
+
+- [ ] **Sign-in is down because the API isn't responding.** On 2026-11-27, `siteorbit-backend.onrender.com` accepted connections but never answered (100-second timeout). The API connects to Supabase on startup, and Supabase pauses free projects after a week without activity. Check Supabase (restore the project if it says Paused), then Render's logs, and redeploy.
+- [ ] **For previews:** on Render, set `FRONTEND_ORIGIN_REGEX=https://site-orbit-[a-z0-9-]+-uzoma-nwaiwus-projects\.vercel\.app` (after merging the backend PR). On Vercel, make sure `NEXT_PUBLIC_API_URL` is enabled for **Preview** as well as Production.
 
 - [ ] Are the prices ($49, $129, Custom) and plan features real? They're kept, reworded in plain language.
 - [ ] A contact email for "Contact sales". Set `NEXT_PUBLIC_CONTACT_EMAIL` on Vercel; until then the button opens LinkedIn.
 - [ ] A test account for CI: add `E2E_EMAIL` and `E2E_PASSWORD` as repository secrets, and `E2E_API_URL` as a repository variable.
 - [ ] Review the Vercel preview of the pull request.
 - [ ] Turn on branch protection for `main` (see `CONTRIBUTING.md`).
-- [ ] Choose a license, or remove the old README's MIT claim for good (there was never a LICENSE file).
+- [ ] Add a LICENSE file: the README shows an MIT badge, but the repo has no license file.
 
 ## Next up (suggested order)
 

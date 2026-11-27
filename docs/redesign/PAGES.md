@@ -22,7 +22,7 @@ Width max 1120px. Left-aligned. Sections are separated by 1px `--border` hairlin
 - 64px tall, sticky, `--bg` background with a 1px `--border` bottom border that appears once the page has scrolled. No blur.
 - Left: logo (mark plus wordmark) linking to `/`.
 - Centre (hidden below `md`): "Product" (`#product`), "Pricing" (`#pricing`), and "Docs" only if a docs page exists.
-- Right: "Sign in" (Outline, sm) and "Start free" (Primary, sm). Both stay visible on mobile.
+- Right: "Sign in" (Link, sm) and "Start free" (Primary, sm). Both stay visible on mobile.
 - Remove "Studios", "Templates" and "Resources" unless those pages exist.
 
 ### 1.2 Hero
@@ -30,7 +30,7 @@ Width max 1120px. Left-aligned. Sections are separated by 1px `--border` hairlin
 - Two columns on `lg` and up (text 55%, image 45%), stacked on mobile with the text first.
 - Headline (`display`): **"Build and publish sites for every client from one workspace."**
 - Sub-copy (`body-lg`, `--text-muted`, max 44ch): "SiteOrbit is a website builder for teams. Each client gets its own workspace, its own domain and its own analytics."
-- Buttons: "Start free" (Primary, lg) → `/sign-up`, and "See how it works" (Outline, lg) → `#how-it-works`.
+- Buttons: "Start free" (Primary, lg) → `/sign-up`, and "See how it works →" (Link, lg) → `#how-it-works`.
 - Small note under the buttons (`small`, `--text-muted`): "Free for one workspace. No card needed." Confirm with Uzoma that this matches the real plan, and remove it if not.
 - Right column: a real screenshot of the **new** builder or dashboard, in a frame with a 1px `--border` border and `--r-lg` radius. No tilt, glow or floating effect. Capture it after the dashboard phase is done (see `BUILD_PLAN.md`). Until then, keep the current image in the new frame.
 - Remove the "• BUILD YOUR ORBIT" pill and the coloured word in the headline.
@@ -55,7 +55,8 @@ A real sequence, so numbering is appropriate. Three steps in a row (stacked on m
 ### 1.5 Pricing (`#pricing`)
 
 - Section title (`h2`): "Pricing"
-- Three plans side by side (stacked on mobile) as cards. Only the recommended plan gets a Primary button, and the others get Outline buttons. The recommended plan has a `--border-strong` border and a plain badge reading "Most teams pick this" (no pill shape, no glow).
+- Three plans side by side (stacked on mobile) as cards. Only the recommended plan gets a Primary button, and the others get Outline buttons. The recommended plan has a `--border-strong` border, a plain badge reading "Most teams pick this" (no pill shape, no glow), and stands 32px taller than its neighbours at the top.
+- Each higher plan builds on the one before: Professional opens its list with "Everything in Starter, plus:" and Enterprise with "Everything in Professional, plus:".
 - Plan names in sentence case ("Starter", "Professional", "Enterprise"), and prices in Fraunces 600 at 36px, tabular.
 - **Open question for Uzoma:** are the $49 and $129 prices and the features listed real? Until confirmed, keep the current numbers and features, but rewrite the bullets in plain language.
 - "Contact sales" on Enterprise must go to a real contact route (a `mailto:` link to Uzoma's chosen address, or a `/contact` page if one exists). Ask Uzoma for the address; don't guess one.
