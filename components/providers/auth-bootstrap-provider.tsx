@@ -1,45 +1,48 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { Suspense, useEffect, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import LoadingState from "@/components/shared/loading-state";
 import { useAuth } from "@/hooks/use-auth";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useAuthStore } from "@/store/auth-store";
 
-export default function AuthBootstrapProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+/**
+ * Sends the visitor to sign-in when there is no session (new tab, expired
+ * token) or the API rejects it. Renders nothing, so pages never wait on it.
+ */
+function AuthGuard() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const hydrated = useHydrated();
 
   const { accessToken } = useAuthStore();
-  const { meQuery, signOut, isUnauthorized } = useAuth();
+  const { signOut, isUnauthorized } = useAuth();
 
   useEffect(() => {
-    if (!isUnauthorized) return;
+    if (!hydrated) return;
+    if (accessToken && !isUnauthorized) return;
 
     void (async () => {
-      await signOut();
-
-      const redirect = pathname ? `?redirect=${encodeURIComponent(pathname)}` : "";
-      router.replace(`/sign-in${redirect}`);
-      router.refresh();
+      if (isUnauthorized) await signOut();
+      const query = searchParams.toString();
+      const target = `${pathname}${query ? `?${query}` : ""}`;
+      router.replace(`/sign-in?redirect=${encodeURIComponent(target)}`);
     })();
-  }, [isUnauthorized, pathname, router, signOut]);
+  }, [accessToken, hydrated, isUnauthorized, pathname, router, searchParams, signOut]);
 
-  if (accessToken && meQuery.isPending) {
-    return (
-      <div className="px-4 py-10 md:px-8 md:py-12">
-        <LoadingState
-          title="Loading your workspace"
-          description="Checking your session and preparing your account."
-        />
-      </div>
-    );
-  }
+  return null;
+}
 
-  return <>{children}</>;
+/** No loading gate: pages render their own skeletons straight away. */
+export default function AuthBootstrapProvider({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <AuthGuard />
+      </Suspense>
+      {children}
+    </>
+  );
 }

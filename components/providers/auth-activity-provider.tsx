@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthStore } from "@/store/auth-store";
 
-const INACTIVITY_LIMIT_MS = 120_000;
+// 30 minutes. It was 2 minutes, which signed people out mid-edit.
+const INACTIVITY_LIMIT_MS = 30 * 60_000;
 
 export default function AuthActivityProvider({
   children,
@@ -34,7 +35,7 @@ export default function AuthActivityProvider({
     const logoutForInactivity = async () => {
       if (!warnedRef.current) {
         warnedRef.current = true;
-        toast.info("You were logged out due to inactivity.");
+        toast.info("You were signed out after 30 minutes without activity.");
       }
 
       await signOut();
