@@ -1,42 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  Eye,
-  Laptop,
-  Loader2,
-  MonitorSmartphone,
-  Save,
-  Smartphone,
-  Tablet,
-  UploadCloud,
-} from "lucide-react";
+import { ArrowLeft, ChevronDown, Laptop, Plus, Smartphone, Tablet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
-  easeBezier,
-  panelSlideUp,
-  staggerFast,
-  subtlePulse,
-} from "@/lib/motion";
-import type {
-  BuilderPageRecord,
-  BuilderViewport,
-  SaveStatus,
-} from "@/types/builder";
+  DropdownMenu,
+  DropdownMenuCheckItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import type { BuilderPageRecord, BuilderViewport, SaveStatus } from "@/types/builder";
 import type { Project } from "@/types/project";
 
-type BuilderToolbarProps = {
+type Props = {
   project: Project | null;
   page: BuilderPageRecord | null;
   pages: BuilderPageRecord[];
   viewport: BuilderViewport;
   saveStatus: SaveStatus;
   isPreviewMode: boolean;
-  canEdit?: boolean;
-  isSaving?: boolean;
-  isPublishing?: boolean;
+  canEdit: boolean;
+  isSaving: boolean;
+  isPublishing: boolean;
+  isCreatingPage: boolean;
   onSelectViewport: (viewport: BuilderViewport) => void;
   onTogglePreview: () => void;
   onSave: () => void;
@@ -45,236 +37,132 @@ type BuilderToolbarProps = {
   onCreatePage: () => void;
 };
 
-function saveStatusLabel(status: SaveStatus) {
-  switch (status) {
-    case "saving":
-      return "Saving…";
-    case "saved":
-      return "Saved";
-    case "unsaved":
-      return "Unsaved changes";
-    case "error":
-      return "Save failed";
-    case "idle":
-    default:
-      return "Ready";
-  }
-}
+const viewports: { value: BuilderViewport; label: string; icon: typeof Laptop }[] = [
+  { value: "desktop", label: "Desktop", icon: Laptop },
+  { value: "tablet", label: "Tablet", icon: Tablet },
+  { value: "mobile", label: "Phone", icon: Smartphone },
+];
 
-function saveStatusTone(status: SaveStatus) {
-  switch (status) {
-    case "saving":
-      return "border-[#89ceff]/25 bg-[#89ceff]/10 text-[#b9e3ff]";
-    case "saved":
-      return "border-[#4fdbc8]/25 bg-[#4fdbc8]/10 text-[#9feee2]";
-    case "unsaved":
-      return "border-[#f7c97a]/25 bg-[#f7c97a]/10 text-[#ffdca2]";
-    case "error":
-      return "border-[#f2b8b5]/25 bg-[#f2b8b5]/10 text-[#f7cbc9]";
-    case "idle":
-    default:
-      return "border-white/10 bg-[#1a1f2d] text-[#9aa6c0]";
-  }
-}
+const saveLabels: Record<SaveStatus, string> = {
+  idle: "All changes saved",
+  saved: "All changes saved",
+  saving: "Saving…",
+  unsaved: "Unsaved changes",
+  error: "Couldn't save. Try again.",
+};
 
-export default function BuilderToolbar({
-  project,
-  page,
-  pages,
-  viewport,
-  saveStatus,
-  isPreviewMode,
-  canEdit = true,
-  isSaving = false,
-  isPublishing = false,
-  onSelectViewport,
-  onTogglePreview,
-  onSave,
-  onPublish,
-  onChangePage,
-  onCreatePage,
-}: BuilderToolbarProps) {
+export default function BuilderToolbar(props: Props) {
+  const { project, page, pages, viewport, saveStatus, isPreviewMode, canEdit } = props;
+  const isLive = project?.status === "published";
+
   return (
-    <motion.header
-      variants={panelSlideUp}
-      initial="hidden"
-      animate="visible"
-      className="border-b border-white/8 bg-[#0f1420] px-4 py-3"
-    >
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#4fdbc8]">
-            Builder
-          </p>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <h1 className="truncate text-xl font-bold text-[#dee2f5]">
-              {project?.name ?? "Untitled project"}
-            </h1>
-
-            {page ? (
-              <motion.span
-                layout
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-full bg-[#1a1f2d] px-3 py-1 text-xs text-[#9aa6c0]"
+    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-bg px-2 sm:px-4">
+      <div className="flex min-w-0 flex-1 items-center gap-1">
+        <Button asChild variant="ghost" size="sm" className="px-2">
+          <Link href="/dashboard">
+            <ArrowLeft />
+            <span className="hidden sm:inline">Sites</span>
+          </Link>
+        </Button>
+        <span aria-hidden="true" className="text-text-faint">
+          /
+        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="min-w-0 gap-1.5 px-2">
+              <span className="truncate">{project?.name ?? "Untitled site"}</span>
+              {page ? (
+                <span className="hidden truncate font-normal text-text-muted md:inline">
+                  {page.title}
+                </span>
+              ) : null}
+              <ChevronDown className="size-3.5! text-text-muted" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-64">
+            <DropdownMenuLabel>Pages</DropdownMenuLabel>
+            {pages.map((item) => (
+              <DropdownMenuCheckItem
+                key={item.id}
+                checked={item.id === page?.id}
+                onSelect={() => props.onChangePage(item.id)}
               >
-                {page.title} · {page.path}
-              </motion.span>
+                <span className="truncate">{item.title}</span>
+                <span className="ml-auto truncate type-small text-text-muted">{item.path}</span>
+              </DropdownMenuCheckItem>
+            ))}
+            {canEdit ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled={props.isCreatingPage} onSelect={props.onCreatePage}>
+                  <Plus />
+                  New page
+                </DropdownMenuItem>
+              </>
             ) : null}
-          </div>
-
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={saveStatus}
-              initial={{ opacity: 0, y: 6, filter: "blur(6px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22, ease: easeBezier }}
-              className="mt-2"
-            >
-              <motion.span
-                variants={saveStatus === "saving" ? subtlePulse : undefined}
-                initial={saveStatus === "saving" ? "initial" : undefined}
-                animate={saveStatus === "saving" ? "animate" : undefined}
-                className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${saveStatusTone(
-                  saveStatus
-                )}`}
-              >
-                {saveStatusLabel(saveStatus)}
-              </motion.span>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        <motion.div
-          variants={staggerFast}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col gap-3 xl:flex-row xl:items-center"
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <p
+          aria-live="polite"
+          className={cn(
+            "hidden truncate type-small lg:block",
+            saveStatus === "unsaved" || saveStatus === "error" ? "text-text" : "text-text-muted"
+          )}
         >
-          <motion.div
-            variants={panelSlideUp}
-            className="flex items-center gap-2 rounded-xl bg-[#111522] p-1"
-          >
-            <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.96 }}>
-              <Button
-                type="button"
-                size="icon-sm"
-                variant={viewport === "desktop" ? "default" : "ghost"}
-                onClick={() => onSelectViewport("desktop")}
-              >
-                <Laptop />
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.96 }}>
-              <Button
-                type="button"
-                size="icon-sm"
-                variant={viewport === "tablet" ? "default" : "ghost"}
-                onClick={() => onSelectViewport("tablet")}
-              >
-                <Tablet />
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -1 }} whileTap={{ scale: 0.96 }}>
-              <Button
-                type="button"
-                size="icon-sm"
-                variant={viewport === "mobile" ? "default" : "ghost"}
-                onClick={() => onSelectViewport("mobile")}
-              >
-                <Smartphone />
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            variants={panelSlideUp}
-            className="flex flex-wrap items-center gap-2"
-          >
-            <motion.select
-              whileFocus={{ scale: 1.01 }}
-              value={page?.id ?? ""}
-              onChange={(event) => onChangePage(event.target.value)}
-              className="h-10 rounded-md border border-white/8 bg-[#111522] px-3 text-sm text-[#dee2f5] outline-none transition focus:border-[#4fdbc8]/35"
-            >
-              {pages.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.title} ({item.path})
-                </option>
-              ))}
-            </motion.select>
-
-            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.985 }}>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-10 rounded-md border-white/8 bg-transparent text-[#dee2f5]"
-                disabled={!canEdit}
-                onClick={onCreatePage}
-              >
-                New page
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.985 }}>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-10 rounded-md border-white/8 bg-transparent text-[#dee2f5]"
-                onClick={onTogglePreview}
-              >
-                {isPreviewMode ? <MonitorSmartphone /> : <Eye />}
-                {isPreviewMode ? "Exit preview" : "Preview"}
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.985 }}>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-10 rounded-md border-white/8 bg-transparent text-[#dee2f5]"
-                disabled={!canEdit || isSaving || !page}
-                onClick={onSave}
-              >
-                {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
-                Save
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: 0.985 }}>
-              <Button
-                type="button"
-                className="h-10 rounded-md bg-[#4fdbc8] text-[#03241f] hover:bg-[#46cfbd]"
-                disabled={!canEdit || isPublishing || !project}
-                onClick={onPublish}
-              >
-                {isPublishing ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <UploadCloud />
-                )}
-                Publish
-              </Button>
-            </motion.div>
-
-            {project ? (
-              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.985 }}>
-                <Button
-                  asChild
-                  type="button"
-                  variant="outline"
-                  className="h-10 rounded-md border-white/8 bg-transparent text-[#dee2f5]"
-                >
-                  <Link href={`/analytics?projectId=${project.id}`}>Analytics</Link>
-                </Button>
-              </motion.div>
-            ) : null}
-          </motion.div>
-        </motion.div>
+          {canEdit ? saveLabels[saveStatus] : "View only"}
+        </p>
       </div>
-    </motion.header>
+
+      <div
+        role="group"
+        aria-label="Preview size"
+        className="hidden items-center gap-0.5 md:flex"
+      >
+        {viewports.map(({ value, label, icon: Icon }) => (
+          <Tooltip key={value}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={label}
+                aria-pressed={viewport === value}
+                onClick={() => props.onSelectViewport(value)}
+                className={viewport === value ? "text-text" : "text-text-muted"}
+              >
+                <Icon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{label}</TooltipContent>
+          </Tooltip>
+        ))}
+      </div>
+
+      <div className="flex flex-1 items-center justify-end gap-2">
+        {canEdit && saveStatus !== "idle" && saveStatus !== "saved" ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            loading={props.isSaving}
+            disabled={!page}
+            onClick={props.onSave}
+          >
+            Save
+          </Button>
+        ) : null}
+        <Button variant="outline" size="sm" aria-pressed={isPreviewMode} onClick={props.onTogglePreview}>
+          {isPreviewMode ? "Edit" : "Preview"}
+        </Button>
+        {canEdit ? (
+          <Button
+            size="sm"
+            loading={props.isPublishing}
+            disabled={!project}
+            onClick={props.onPublish}
+          >
+            {isLive ? "Publish changes" : "Publish"}
+          </Button>
+        ) : null}
+      </div>
+    </header>
   );
 }
