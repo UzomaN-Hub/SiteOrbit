@@ -1,55 +1,29 @@
-"use client";
+import type { Metadata } from "next";
 
-import { useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import Logo from "@/components/brand/logo";
+import OAuthCallback from "@/components/auth/oauth-callback";
+import { safeRedirect } from "@/lib/utils/format";
 
-import LoadingState from "@/components/shared/loading-state";
-import { useAuth } from "@/hooks/use-auth";
+export const metadata: Metadata = {
+  title: "Signing in",
+  robots: { index: false },
+};
 
-export default function OAuthCallbackPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const hasStartedRef = useRef(false);
-
-  const { oauthExchangeMutation } = useAuth();
-
-  useEffect(() => {
-    if (hasStartedRef.current) return;
-
-    const code = searchParams.get("code");
-    const redirect = searchParams.get("redirect") || "/dashboard";
-
-    if (!code) {
-      hasStartedRef.current = true;
-      toast.error("OAuth sign-in could not be completed.");
-      router.replace("/sign-in");
-      return;
-    }
-
-    hasStartedRef.current = true;
-
-    void (async () => {
-      try {
-        await oauthExchangeMutation.mutateAsync(code);
-        toast.success("Signed in successfully.");
-        router.replace(redirect);
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "OAuth sign-in failed.";
-        toast.error(message);
-        router.replace("/sign-in");
-      }
-    })();
-  }, [oauthExchangeMutation, router, searchParams]);
+export default async function OAuthCallbackPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string; redirect?: string }>;
+}) {
+  const { code, redirect } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-xl">
-        <LoadingState
-          title="Completing sign-in"
-          description="Finalizing your secure SiteOrbit session."
-        />
+    <main className="min-h-dvh px-4 pt-12 sm:pt-24">
+      <div className="mx-auto flex w-full max-w-[400px] flex-col gap-12">
+        <Logo className="self-start" />
+        <div className="flex flex-col gap-4">
+          <h1 className="type-h2 text-text">Signing you in</h1>
+          <OAuthCallback code={code ?? null} redirect={safeRedirect(redirect)} />
+        </div>
       </div>
     </main>
   );

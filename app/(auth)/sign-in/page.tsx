@@ -1,29 +1,26 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 
-import AuthCard from "@/components/auth/auth-card";
-import AuthForm from "@/components/auth/auth-form";
-import AuthOrbitVisual from "@/components/auth/auth-orbit-visual";
+import AuthHeading from "@/components/auth/auth-heading";
+import { SignInForm } from "@/components/auth/auth-forms";
+import { safeRedirect } from "@/lib/utils/format";
 
-export default function SignInPage() {
+export const metadata: Metadata = {
+  title: "Sign in",
+  description: "Sign in to SiteOrbit to manage your client sites, team and domains.",
+};
+
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string | string[] }>;
+}) {
+  const { redirect } = await searchParams;
+  const target = safeRedirect(Array.isArray(redirect) ? redirect[0] : redirect);
+
   return (
-    <div className="flex justify-center">
-      <AuthCard
-        title="Welcome back"
-        description="Sign in to continue building, publishing, and managing your workspace without losing momentum."
-        heroTitle="Return to the control layer."
-        heroDescription="Secure access, clear system context, and a polished workflow for teams shaping their digital presence."
-        visual={<AuthOrbitVisual mode="sign-in" />}
-        footer={
-          <p className="text-sm text-muted-foreground">
-            New to SiteOrbit?{" "}
-            <Link href="/sign-up" className="text-primary hover:underline">
-              Create your account
-            </Link>
-          </p>
-        }
-      >
-        <AuthForm variant="sign-in" />
-      </AuthCard>
-    </div>
+    <>
+      <AuthHeading title="Sign in" description="Welcome back. Pick up where you left off." />
+      <SignInForm redirect={target} />
+    </>
   );
 }
