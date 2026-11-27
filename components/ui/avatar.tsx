@@ -26,9 +26,9 @@ type AvatarProps = {
 };
 
 const sizeClass = {
-  20: "size-5 text-[9px]",
-  28: "size-7 text-[11px]",
-  32: "size-8 text-[12px]",
+  20: "size-6 text-[10px]",
+  28: "size-8 text-[12px]",
+  32: "size-9 text-[13px]",
 } as const;
 
 function Avatar({ name, src, kind = "person", size = 28, className }: AvatarProps) {

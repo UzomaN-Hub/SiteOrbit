@@ -32,7 +32,7 @@ export default function AnalyticsOverview({ data }: { data: AnalyticsOverviewRes
                 className={`flex flex-col gap-2 py-6 pr-4 ${index % 2 ? "pl-4 border-l border-border" : ""} lg:border-l lg:border-border lg:pl-6 lg:first:border-l-0 lg:first:pl-0 ${index > 1 ? "border-t border-border lg:border-t-0" : ""}`}
               >
                 <dt className="type-label text-text-muted">{metric.label}</dt>
-                <dd className="font-display text-[28px] leading-none font-semibold text-text tabular">
+                <dd className="font-display text-[36px] leading-none font-semibold text-text tabular">
                   {metric.value}
                 </dd>
                 <dd className="flex items-center gap-1 type-small text-text-muted">

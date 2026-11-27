@@ -41,7 +41,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       scope="col"
       className={cn(
-        "h-10 px-3 type-label font-medium whitespace-nowrap text-text-muted first:pl-0 last:pr-0",
+        "h-11 px-3 type-label font-medium whitespace-nowrap text-text-muted first:pl-0 last:pr-0",
         className
       )}
       {...props}
@@ -53,7 +53,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       className={cn(
-        "h-14 px-3 type-ui font-normal text-text first:pl-0 last:pr-0",
+        "h-16 px-3 type-ui font-normal text-text first:pl-0 last:pr-0",
         className
       )}
       {...props}

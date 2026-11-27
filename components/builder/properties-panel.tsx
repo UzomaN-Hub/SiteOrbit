@@ -22,7 +22,7 @@ export default function PropertiesPanel({ block, canEdit, onChange }: Props) {
   return (
     <aside
       aria-label="Section settings"
-      className="border-t border-border xl:h-[calc(100dvh-56px)] xl:overflow-y-auto xl:border-t-0 xl:border-l"
+      className="border-t border-border xl:h-[calc(100dvh-64px)] xl:overflow-y-auto xl:border-t-0 xl:border-l"
     >
       {!block ? (
         <div className="flex flex-col gap-1 p-4">

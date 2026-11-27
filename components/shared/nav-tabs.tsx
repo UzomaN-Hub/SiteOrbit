@@ -47,7 +47,7 @@ export default function NavTabs({
     <nav aria-label={label} className={cn("border-b border-border", className)}>
       <div
         ref={listRef}
-        className="no-scrollbar relative flex h-11 items-stretch gap-6 overflow-x-auto"
+        className="no-scrollbar relative flex h-12 items-stretch gap-7 overflow-x-auto"
       >
         {tabs.map((tab) => (
           <Link

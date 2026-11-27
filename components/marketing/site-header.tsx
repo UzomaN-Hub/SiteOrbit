@@ -30,7 +30,7 @@ export default function SiteHeader() {
         scrolled ? "border-border" : "border-transparent"
       )}
     >
-      <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center gap-6 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-18 w-full max-w-[1200px] items-center gap-6 px-4 sm:px-6 lg:px-8">
         <Logo />
         <nav aria-label="Main" className="mx-auto hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (
@@ -43,8 +43,8 @@ export default function SiteHeader() {
             </a>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-2 md:ml-0">
-          <Button asChild variant="outline" size="sm">
+        <div className="ml-auto flex items-center gap-4 md:ml-0">
+          <Button asChild variant="link" size="sm">
             <Link href="/sign-in">Sign in</Link>
           </Button>
           <Button asChild size="sm">

@@ -27,7 +27,7 @@ export default function Segmented<T extends string>({
       role="group"
       aria-label={label}
       className={cn(
-        "inline-flex h-8 w-fit items-center gap-0.5 rounded-sm border border-border p-0.5",
+        "inline-flex h-10 w-fit items-center gap-0.5 rounded-sm border border-border p-0.5",
         className
       )}
     >
@@ -40,7 +40,7 @@ export default function Segmented<T extends string>({
             aria-pressed={selected}
             onClick={() => onChange(option.value)}
             className={cn(
-              "inline-flex h-full items-center gap-1.5 rounded-xs px-2.5 type-ui transition-colors duration-(--dur-fast)",
+              "inline-flex h-full items-center gap-1.5 rounded-xs px-3 type-ui transition-colors duration-(--dur-fast)",
               selected
                 ? "bg-surface-2 text-text"
                 : "text-text-muted hover:text-text"

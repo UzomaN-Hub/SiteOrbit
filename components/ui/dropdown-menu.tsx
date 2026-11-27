@@ -14,7 +14,7 @@ export const floatingLayerClass =
   "z-50 rounded-md border border-border bg-surface-2 p-2 text-text shadow-float outline-none";
 
 export const menuItemClass = cn(
-  "relative flex h-9 cursor-default items-center gap-2 rounded-sm px-2 type-ui font-normal text-text outline-none select-none",
+  "relative flex h-10 cursor-default items-center gap-2 rounded-sm px-2 type-ui font-normal text-text outline-none select-none",
   "data-highlighted:bg-surface-1 data-disabled:pointer-events-none data-disabled:opacity-40",
   "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg]:stroke-[1.5] [&_svg]:text-text-muted"
 );

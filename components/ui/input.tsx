@@ -11,7 +11,7 @@ export const fieldControlClass = cn(
 );
 
 type InputProps = Omit<React.ComponentProps<"input">, "size"> & {
-  /** md is 40px (dashboard); lg is 44px (auth pages). */
+  /** md is 44px (dashboard); lg is 48px (auth pages). */
   size?: "md" | "lg";
 };
 
@@ -23,7 +23,7 @@ function Input({ className, type, size = "md", ...props }: InputProps) {
       data-size={size}
       className={cn(
         fieldControlClass,
-        size === "lg" ? "h-11" : "h-10",
+        size === "lg" ? "h-12" : "h-11",
         "file:mr-3 file:border-0 file:bg-transparent file:type-ui file:text-text",
         className
       )}

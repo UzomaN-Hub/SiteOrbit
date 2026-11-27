@@ -206,9 +206,9 @@ export default function SitesPage() {
                   : []),
               ]}
             />
-            <div className="relative w-full sm:w-64">
+            <div className="relative w-full sm:w-72">
               <Search
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-faint"
+                className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-text-faint"
                 strokeWidth={1.5}
                 aria-hidden="true"
               />
@@ -218,7 +218,7 @@ export default function SitesPage() {
                 placeholder="Search sites"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="h-8 pl-9 type-ui font-normal"
+                className="h-10 pl-10 type-ui font-normal"
               />
             </div>
           </div>

@@ -62,13 +62,13 @@ export default function TrafficChart({ data }: { data: AnalyticsTrafficPoint[] }
             tickLine={false}
             axisLine={false}
             minTickGap={24}
-            tick={{ fill: "currentColor", fillOpacity: 0.64, fontSize: 12 }}
+            tick={{ fill: "currentColor", fillOpacity: 0.64, fontSize: 13 }}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
             width={48}
-            tick={{ fill: "currentColor", fillOpacity: 0.64, fontSize: 12 }}
+            tick={{ fill: "currentColor", fillOpacity: 0.64, fontSize: 13 }}
           />
           <Tooltip
             content={<ChartTooltip />}

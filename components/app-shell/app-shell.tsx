@@ -32,11 +32,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       <header className="sticky top-0 z-40 bg-bg">
         <div className="border-b border-border">
-          <div className={`${appContentClass} flex h-14 items-center gap-2`}>
+          <div className={`${appContentClass} flex h-16 items-center gap-2`}>
             <Link
               href="/dashboard"
               aria-label="Sites home"
-              className="logo-link inline-flex size-8 shrink-0 items-center justify-center rounded-sm text-text"
+              className="logo-link inline-flex size-9 shrink-0 items-center justify-center rounded-sm text-text"
             >
               <LogoMark />
             </Link>

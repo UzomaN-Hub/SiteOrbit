@@ -102,7 +102,7 @@ export default function Canvas({
   onMoveBlock,
 }: CanvasProps) {
   return (
-    <div className="min-h-[60vh] bg-surface-1 p-4 sm:p-8 xl:h-[calc(100dvh-56px)] xl:overflow-y-auto">
+    <div className="min-h-[60vh] bg-surface-1 p-4 sm:p-8 xl:h-[calc(100dvh-64px)] xl:overflow-y-auto">
       <div
         className={cn(
           "@container mx-auto min-h-full rounded-md border border-border bg-bg transition-[max-width] duration-(--dur-base) ease-brand",
@@ -151,7 +151,7 @@ export default function Canvas({
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            className="size-7"
+                            className="size-8"
                             aria-label="Move section up"
                             disabled={index === 0}
                             onClick={() => onMoveBlock(block.id, "up")}
@@ -161,7 +161,7 @@ export default function Canvas({
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            className="size-7"
+                            className="size-8"
                             aria-label="Move section down"
                             disabled={index === blocks.length - 1}
                             onClick={() => onMoveBlock(block.id, "down")}
@@ -171,7 +171,7 @@ export default function Canvas({
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            className="size-7"
+                            className="size-8"
                             aria-label="Remove section"
                             onClick={() => onRemoveBlock(block.id)}
                           >

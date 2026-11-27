@@ -25,15 +25,16 @@ const buttonVariants = cva(
           "border border-border-strong bg-transparent text-text enabled:hover:border-text-muted enabled:hover:bg-surface-2 [a&]:hover:border-text-muted [a&]:hover:bg-surface-2 aria-expanded:bg-surface-2",
         ghost:
           "bg-transparent text-text enabled:hover:bg-surface-2 [a&]:hover:bg-surface-2 aria-expanded:bg-surface-2 aria-pressed:bg-surface-2",
-        link: "h-auto! px-0! text-text underline decoration-1 underline-offset-[3px] hover:decoration-2 active:scale-100!",
+        // The secondary action beside a filled button: underlined text, not a second box.
+        link: "px-1! bg-transparent text-text underline decoration-text-faint decoration-1 underline-offset-[6px] transition-[text-decoration-color] hover:decoration-text hover:decoration-2 active:scale-100! [&_svg]:transition-transform [&_svg]:duration-(--dur-fast) hover:[&_svg]:translate-x-0.5",
       },
       size: {
-        sm: "h-8 px-3",
-        md: "h-10 px-4",
-        lg: "h-12 px-6 text-[16px]",
-        auth: "h-11 px-4",
-        "icon-sm": "size-8",
-        "icon-md": "size-10",
+        sm: "h-9 px-4",
+        md: "h-11 px-5",
+        lg: "h-14 px-7 text-[17px]",
+        auth: "h-12 px-5 text-[16px]",
+        "icon-sm": "size-9",
+        "icon-md": "size-11",
       },
     },
     defaultVariants: {

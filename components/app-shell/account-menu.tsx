@@ -20,7 +20,7 @@ export default function AccountMenu() {
   const { user, signOut } = useAuth();
 
   if (!hydrated) {
-    return <Skeleton className="size-7 rounded-full" data-allow-round />;
+    return <Skeleton className="size-8 rounded-full" data-allow-round />;
   }
 
   const handleSignOut = async () => {
@@ -31,7 +31,7 @@ export default function AccountMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="inline-flex size-8 items-center justify-center rounded-full"
+        className="inline-flex size-10 items-center justify-center rounded-full"
         data-allow-round
       >
         <Avatar name={user?.name} src={user?.avatar} size={28} />

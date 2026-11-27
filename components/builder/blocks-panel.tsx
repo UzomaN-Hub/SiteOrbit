@@ -88,7 +88,7 @@ export default function BlocksPanel({
   return (
     <aside
       aria-label="Add sections"
-      className="flex flex-col border-b border-border xl:h-[calc(100dvh-56px)] xl:overflow-y-auto xl:border-r xl:border-b-0"
+      className="flex flex-col border-b border-border xl:h-[calc(100dvh-64px)] xl:overflow-y-auto xl:border-r xl:border-b-0"
     >
       <div className="px-4 pt-4 pb-2">
         <h2 className="type-ui text-text">Add a section</h2>

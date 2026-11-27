@@ -25,7 +25,7 @@ function SelectTrigger({
       className={cn(
         fieldControlClass,
         "flex items-center justify-between gap-2 text-left data-placeholder:text-text-faint",
-        size === "sm" ? "h-8 type-ui font-normal" : "h-10",
+        size === "sm" ? "h-9 type-ui font-normal" : "h-11",
         className
       )}
       {...props}

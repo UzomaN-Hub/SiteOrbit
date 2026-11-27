@@ -21,7 +21,7 @@ import { useBuilderStore } from "@/store/builder-store";
 export function BuilderSkeleton() {
   return (
     <div className="min-h-dvh" role="status" aria-busy="true" aria-label="Loading the builder">
-      <div className="flex h-14 items-center gap-3 border-b border-border px-4">
+      <div className="flex h-16 items-center gap-3 border-b border-border px-4">
         <Skeleton className="h-4 w-16" />
         <Skeleton className="h-4 w-40" />
         <Skeleton className="ml-auto h-8 w-20 rounded-sm" />

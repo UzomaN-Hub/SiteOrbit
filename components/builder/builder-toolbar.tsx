@@ -56,7 +56,7 @@ export default function BuilderToolbar(props: Props) {
   const isLive = project?.status === "published";
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-bg px-2 sm:px-4">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-bg px-2 sm:px-4">
       <div className="flex min-w-0 flex-1 items-center gap-1">
         <Button asChild variant="ghost" size="sm" className="px-2">
           <Link href="/dashboard">
@@ -149,7 +149,7 @@ export default function BuilderToolbar(props: Props) {
             Save
           </Button>
         ) : null}
-        <Button variant="outline" size="sm" aria-pressed={isPreviewMode} onClick={props.onTogglePreview}>
+        <Button variant="link" size="sm" aria-pressed={isPreviewMode} onClick={props.onTogglePreview}>
           {isPreviewMode ? "Edit" : "Preview"}
         </Button>
         {canEdit ? (
