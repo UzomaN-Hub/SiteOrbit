@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { RefreshCcw } from "lucide-react";
 
 import ErrorState from "@/components/shared/error-state";
-import { Button } from "@/components/ui/button";
 
-export default function Error({
+export default function RouteError({
   error,
   reset,
 }: {
@@ -18,24 +16,13 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-2xl">
+    <main className="min-h-dvh px-4 pt-12 sm:pt-24">
+      <div className="mx-auto w-full max-w-[480px]">
         <ErrorState
-          title="Something broke in this view"
-          description={
-            error.message ||
-            "An unexpected error stopped this page from rendering correctly."
-          }
-          action={
-            <Button
-              onClick={reset}
-              variant="outline"
-              className="rounded-md border-white/8 bg-transparent text-[#dee2f5]"
-            >
-              <RefreshCcw data-icon="inline-start" />
-              Try again
-            </Button>
-          }
+          title="This page hit an error"
+          error={error}
+          fallback="Something went wrong while showing this page. Try again, and if it keeps happening, reload."
+          onRetry={reset}
         />
       </div>
     </main>

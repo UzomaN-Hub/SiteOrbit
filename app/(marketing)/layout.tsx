@@ -1,12 +1,18 @@
-export default function MarketingLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import type { ReactNode } from "react";
+
+import { revealScript } from "@/components/marketing/reveal";
+
+export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.12),transparent_24%)]" />
-      <div className="relative">{children}</div>
-    </div>
+    <>
+      <script dangerouslySetInnerHTML={{ __html: revealScript }} />
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-sm bg-brand px-4 py-2 type-ui text-on-brand focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      >
+        Skip to content
+      </a>
+      {children}
+    </>
   );
 }
