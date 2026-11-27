@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import AppShell  from "@/components/layout/app-shell";
+import AppShell from "@/components/app-shell/app-shell";
 import AuthBootstrapProvider from "@/components/providers/auth-bootstrap-provider";
 
 export default function AppLayout({ children }: { children: ReactNode }) {

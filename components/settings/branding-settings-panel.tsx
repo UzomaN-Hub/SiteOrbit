@@ -1,41 +1,17 @@
 "use client";
 
-import { ImageIcon, Loader2, Palette, Type } from "lucide-react";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 
+import { errorMessage } from "@/components/shared/error-state";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldContent,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  cardReveal,
-  pageReveal,
-  pulseGlow,
-  staggerContainer,
-  sectionReveal,
-} from "@/lib/motion";
+import type { brandingDefaults } from "@/lib/constants/branding";
 
-export type BrandingFormState = {
-  primary: string;
-  secondary: string;
-  accent: string;
-  background: string;
-  surface: string;
-  heading_font: string;
-  body_font: string;
-  base_size: string;
-  section_gap: string;
-  container_width: string;
-  card_radius: string;
-  button_radius: string;
-  input_radius: string;
-};
+export type BrandingFormState = { -readonly [K in keyof typeof brandingDefaults]: string };
 
-type BrandingSettingsPanelProps = {
+type Props = {
   form: BrandingFormState;
   initialForm: BrandingFormState;
   canManageSettings: boolean;
@@ -45,6 +21,44 @@ type BrandingSettingsPanelProps = {
   onSave: () => Promise<void>;
 };
 
+const colorFields: [string, keyof BrandingFormState][] = [
+  ["Primary", "primary"],
+  ["Secondary", "secondary"],
+  ["Accent", "accent"],
+  ["Background", "background"],
+  ["Surface", "surface"],
+];
+
+const typeFields: [string, keyof BrandingFormState, string?][] = [
+  ["Heading font", "heading_font"],
+  ["Body font", "body_font"],
+  ["Base text size", "base_size", "16px"],
+];
+
+const layoutFields: [string, keyof BrandingFormState][] = [
+  ["Space between sections", "section_gap"],
+  ["Content width", "container_width"],
+  ["Card corners", "card_radius"],
+  ["Button corners", "button_radius"],
+  ["Field corners", "input_radius"],
+];
+
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
+  const id = `brand-group-${title.toLowerCase()}`;
+  return (
+    <div
+      role="group"
+      aria-labelledby={id}
+      className="flex flex-col gap-4 border-t border-border pt-6 first:border-t-0 first:pt-0"
+    >
+      <h4 id={id} className="type-ui text-text">
+        {title}
+      </h4>
+      {children}
+    </div>
+  );
+}
+
 export default function BrandingSettingsPanel({
   form,
   initialForm,
@@ -53,251 +67,142 @@ export default function BrandingSettingsPanel({
   onChange,
   onReset,
   onSave,
-}: BrandingSettingsPanelProps) {
-  const hasUnsavedChanges =
-    JSON.stringify(form) !== JSON.stringify(initialForm);
+}: Props) {
+  const dirty = JSON.stringify(form) !== JSON.stringify(initialForm);
+  const set = (key: keyof BrandingFormState, value: string) => onChange({ ...form, [key]: value });
 
-  const handleSave = async () => {
+  const save = async (event: React.FormEvent) => {
+    event.preventDefault();
     try {
       await onSave();
       toast.success("Brand settings saved.");
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Brand settings could not be saved.";
-      toast.error(message);
+      toast.error(errorMessage(error, "Brand settings couldn't be saved. Try again."));
     }
   };
 
   return (
-    <motion.div
-      variants={pageReveal}
-      initial="hidden"
-      animate="visible"
-      className="grid gap-8 lg:grid-cols-[1.2fr_1fr]"
-    >
-      <motion.section
-        variants={cardReveal}
-        className="relative overflow-hidden rounded-xl bg-[#1a1f2d] p-8"
-      >
-        <motion.div
-          variants={pulseGlow}
-          initial="initial"
-          animate="animate"
-          className="absolute -right-16 -top-16 size-32 rounded-full bg-[#4fdbc8]/5 blur-3xl"
-        />
-
-        <motion.div variants={staggerContainer} className="relative space-y-8">
-          <motion.div
-            variants={sectionReveal}
-            className="flex items-center justify-between gap-4"
-          >
-            <div>
-              <h2 className="font-heading text-xl font-bold text-[#dee2f5]">
-                Brand System
-              </h2>
-              <p className="mt-1 text-sm text-[#bbcac6]">
-                Theme colors, typography, spacing, and radius values used across
-                the workspace.
-              </p>
-            </div>
-            <motion.div whileHover={{ rotate: -10, scale: 1.08 }}>
-              <Palette className="size-7 text-[#4fdbc8]/40" />
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            variants={staggerContainer}
-            className="grid gap-6 md:grid-cols-2"
-          >
-            {[
-              ["Primary", "primary"],
-              ["Secondary", "secondary"],
-              ["Accent", "accent"],
-              ["Background", "background"],
-              ["Surface", "surface"],
-            ].map(([label, key]) => (
-              <motion.div key={key} variants={sectionReveal}>
-                <Field>
-                  <FieldLabel className="ml-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#bbcac6]">
-                    {label}
-                  </FieldLabel>
-                  <FieldContent>
-                    <div className="flex gap-3">
-                      <Input
-                        type="color"
-                        value={form[key as keyof BrandingFormState] as string}
-                        disabled={!canManageSettings}
-                        onChange={(event) =>
-                          onChange({
-                            ...form,
-                            [key]: event.target.value,
-                          })
-                        }
-                        className="h-12 w-16 rounded-lg bg-[#090e1b] p-2"
-                      />
-                      <Input
-                        value={form[key as keyof BrandingFormState] as string}
-                        disabled={!canManageSettings}
-                        onChange={(event) =>
-                          onChange({
-                            ...form,
-                            [key]: event.target.value,
-                          })
-                        }
-                        className="h-12 rounded-lg bg-[#090e1b] text-[#dee2f5]"
-                      />
-                    </div>
-                  </FieldContent>
-                </Field>
-              </motion.div>
-            ))}
-
-            {[
-              ["Heading Font", "heading_font"],
-              ["Body Font", "body_font"],
-              ["Base Size", "base_size"],
-              ["Section Gap", "section_gap"],
-              ["Container Width", "container_width"],
-              ["Card Radius", "card_radius"],
-              ["Button Radius", "button_radius"],
-              ["Input Radius", "input_radius"],
-            ].map(([label, key]) => (
-              <motion.div key={key} variants={sectionReveal}>
-                <Field>
-                  <FieldLabel className="ml-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#bbcac6]">
-                    {label}
-                  </FieldLabel>
-                  <FieldContent>
-                    <Input
-                      value={form[key as keyof BrandingFormState] as string}
+    <form onSubmit={save} className="grid items-start gap-6 lg:grid-cols-[3fr_2fr]">
+      <Card>
+        <CardHeader>
+          <CardTitle>Client brand</CardTitle>
+          <CardDescription>
+            Colours, type and spacing used by every site in this workspace.
+          </CardDescription>
+        </CardHeader>
+        <div className="flex flex-col gap-6" aria-disabled={!canManageSettings || undefined}>
+          <Group title="Colours">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {colorFields.map(([label, key]) => (
+                <Field key={key}>
+                  <FieldLabel htmlFor={`brand-${key}`}>{label}</FieldLabel>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      aria-label={`${label} colour picker`}
+                      value={form[key]}
                       disabled={!canManageSettings}
-                      onChange={(event) =>
-                        onChange({
-                          ...form,
-                          [key]: event.target.value,
-                        })
-                      }
-                      className="h-12 rounded-lg bg-[#090e1b] text-[#dee2f5]"
+                      onChange={(event) => set(key, event.target.value)}
+                      className="h-10 w-12 shrink-0 cursor-pointer rounded-sm border border-border bg-surface-1 p-1 disabled:cursor-not-allowed"
                     />
-                  </FieldContent>
+                    <Input
+                      id={`brand-${key}`}
+                      value={form[key]}
+                      spellCheck={false}
+                      disabled={!canManageSettings}
+                      onChange={(event) => set(key, event.target.value)}
+                      className="tabular uppercase"
+                    />
+                  </div>
                 </Field>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            variants={sectionReveal}
-            className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
-          >
-            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-11 rounded-md border-white/8 bg-transparent text-[#dee2f5]"
-                disabled={!canManageSettings || !hasUnsavedChanges}
-                onClick={onReset}
-              >
-                Reset
-              </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -3, scale: 1.01 }} whileTap={{ scale: 0.985 }}>
-              <Button
-                type="button"
-                className="h-11 rounded-md bg-[#4fdbc8] px-5 text-[#03241f] hover:bg-[#46cfbd]"
-                disabled={!canManageSettings || !hasUnsavedChanges || isSaving}
-                onClick={() => void handleSave()}
-              >
-                {isSaving ? <Loader2 className="size-4 animate-spin" /> : null}
-                Save Branding
-              </Button>
-            </motion.div>
-          </motion.div>
-        </motion.div>
-      </motion.section>
-
-      <motion.aside variants={staggerContainer} className="space-y-8">
-        <motion.section
-          variants={cardReveal}
-          className="rounded-xl bg-[#1a1f2d] p-7"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-heading text-lg font-semibold text-[#dee2f5]">
-                Live Preview Tokens
-              </h3>
-              <p className="mt-1 text-sm text-[#bbcac6]">
-                Quick visual summary of the active workspace theme.
-              </p>
+              ))}
             </div>
-            <motion.div whileHover={{ rotate: 8, scale: 1.08 }}>
-              <Type className="size-6 text-[#4fdbc8]/45" />
-            </motion.div>
-          </div>
-
-          <div className="mt-6 space-y-5">
-            <div className="rounded-lg bg-[#090e1b] p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-[#9aa6c0]">
-                Colors
-              </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                {[
-                  form.primary,
-                  form.secondary,
-                  form.accent,
-                  form.background,
-                  form.surface,
-                ].map((value) => (
-                  <motion.div
-                    key={value}
-                    whileHover={{ y: -2, scale: 1.06 }}
-                    className="size-10 rounded-full border border-white/10"
-                    style={{ backgroundColor: value }}
+          </Group>
+          <Group title="Type">
+            <div className="grid gap-4 sm:grid-cols-3">
+              {typeFields.map(([label, key]) => (
+                <Field key={key}>
+                  <FieldLabel htmlFor={`brand-${key}`}>{label}</FieldLabel>
+                  <Input
+                    id={`brand-${key}`}
+                    value={form[key]}
+                    disabled={!canManageSettings}
+                    onChange={(event) => set(key, event.target.value)}
                   />
-                ))}
-              </div>
+                </Field>
+              ))}
             </div>
-
-            <div className="rounded-lg bg-[#090e1b] p-4 text-sm text-[#bbcac6]">
-              <p className="font-semibold text-[#dee2f5]">
-                {form.heading_font}
-              </p>
-              <p className="mt-2">
-                Body font: {form.body_font} · Base size: {form.base_size}
-              </p>
-              <p className="mt-2">
-                Container: {form.container_width} · Section gap: {form.section_gap}
-              </p>
+          </Group>
+          <Group title="Layout">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {layoutFields.map(([label, key]) => (
+                <Field key={key}>
+                  <FieldLabel htmlFor={`brand-${key}`}>{label}</FieldLabel>
+                  <Input
+                    id={`brand-${key}`}
+                    value={form[key]}
+                    disabled={!canManageSettings}
+                    onChange={(event) => set(key, event.target.value)}
+                    className="tabular"
+                  />
+                </Field>
+              ))}
             </div>
-          </div>
-        </motion.section>
+          </Group>
+        </div>
+        {canManageSettings ? (
+          <CardFooter>
+            <Button type="button" variant="outline" disabled={!dirty || isSaving} onClick={onReset}>
+              Discard changes
+            </Button>
+            <Button type="submit" disabled={!dirty} loading={isSaving}>
+              Save changes
+            </Button>
+          </CardFooter>
+        ) : null}
+      </Card>
 
-        <motion.section
-          variants={cardReveal}
-          className="rounded-xl bg-[#1a1f2d] p-7"
+      {/* Preview uses the client's own values, so inline styles are expected here. */}
+      <aside className="flex flex-col gap-3 lg:sticky lg:top-32" aria-label="Brand preview">
+        <p className="type-label text-text-muted">Preview</p>
+        <div
+          className="overflow-hidden rounded-md border border-border"
+          style={{ background: form.background, fontSize: form.base_size }}
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-heading text-lg font-semibold text-[#dee2f5]">
-                Brand Assets
-              </h3>
-              <p className="mt-1 text-sm text-[#bbcac6]">
-                Placeholder surface for workspace logo and visual identity
-                assets.
-              </p>
+          <div className="flex flex-col gap-3 p-6" style={{ color: form.primary }}>
+            <p style={{ fontFamily: form.heading_font, fontSize: "1.5em", lineHeight: 1.2 }}>
+              A heading in {form.heading_font}
+            </p>
+            <p style={{ fontFamily: form.body_font, opacity: 0.8 }}>
+              Body copy in {form.body_font} at {form.base_size}.
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2" style={{ fontFamily: form.body_font }}>
+              <span
+                className="px-4 py-2"
+                style={{
+                  background: form.primary,
+                  color: form.background,
+                  borderRadius: form.button_radius,
+                }}
+              >
+                Primary button
+              </span>
+              <span
+                className="px-4 py-2"
+                style={{ background: form.accent, color: form.primary, borderRadius: form.button_radius }}
+              >
+                Accent
+              </span>
             </div>
-            <motion.div whileHover={{ rotate: 8, scale: 1.08 }}>
-              <ImageIcon className="size-6 text-[#4fdbc8]/45" />
-            </motion.div>
+            <div
+              className="mt-2 p-4"
+              style={{ background: form.surface, borderRadius: form.card_radius }}
+            >
+              <span style={{ fontFamily: form.body_font, fontSize: "0.875em" }}>A card on the surface colour</span>
+            </div>
           </div>
-
-          <div className="mt-6 rounded-xl border border-dashed border-white/10 bg-[#090e1b] p-6 text-center text-sm text-[#9aa6c0]">
-            Logo upload can be added next without changing the settings structure.
-          </div>
-        </motion.section>
-      </motion.aside>
-    </motion.div>
+        </div>
+      </aside>
+    </form>
   );
 }

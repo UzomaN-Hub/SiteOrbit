@@ -1,25 +1,30 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 
 import BrandingSettingsPanel, {
   type BrandingFormState,
 } from "@/components/settings/branding-settings-panel";
-import SettingsNav, { type SettingsTab } from "@/components/settings/settings-nav";
-import SettingsPlaceholderPanel from "@/components/settings/settings-placeholder-panel";
 import WorkspaceSettingsPanel, {
   type WorkspaceFormState,
 } from "@/components/settings/workspace-settings-panel";
-import { Badge } from "@/components/ui/badge";
+import ErrorState from "@/components/shared/error-state";
+import NavTabs from "@/components/shared/nav-tabs";
+import PageHeader from "@/components/shared/page-header";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { useProjects } from "@/hooks/use-projects";
 import { useSettings } from "@/hooks/use-settings";
 import { useUnsavedChangesWarning } from "@/hooks/use-unsaved-changes-warning";
+import { brandingDefaults } from "@/lib/constants/branding";
+import type { Theme } from "@/types/theme";
+import type { Workspace } from "@/types/workspace";
 
-function normalizeWorkspaceForm(input?: {
-  name?: string | null;
-  primary_domain?: string | null;
-  description?: string | null;
-} | null): WorkspaceFormState {
+type Tab = "workspace" | "branding" | "billing";
+
+function toWorkspaceForm(input: Workspace | null): WorkspaceFormState {
   return {
     name: input?.name ?? "",
     primary_domain: input?.primary_domain ?? "",
@@ -27,199 +32,164 @@ function normalizeWorkspaceForm(input?: {
   };
 }
 
-function normalizeBrandingForm(input?: {
-  colors?: {
-    primary?: string;
-    secondary?: string;
-    accent?: string;
-    background?: string;
-    surface?: string;
-  };
-  typography?: {
-    heading_font?: string;
-    body_font?: string;
-    base_size?: string;
-  };
-  spacing?: {
-    section_gap?: string;
-    container_width?: string;
-  };
-  radius?: {
-    card?: string;
-    button?: string;
-    input?: string;
-  };
-} | null): BrandingFormState {
+function toBrandingForm(input: Theme | null): BrandingFormState {
+  const d = brandingDefaults;
   return {
-    primary: input?.colors?.primary ?? "#4FDBC8",
-    secondary: input?.colors?.secondary ?? "#89CEFF",
-    accent: input?.colors?.accent ?? "#DEE2F5",
-    background: input?.colors?.background ?? "#090E1B",
-    surface: input?.colors?.surface ?? "#1A1F2D",
-    heading_font: input?.typography?.heading_font ?? "Inter",
-    body_font: input?.typography?.body_font ?? "Inter",
-    base_size: input?.typography?.base_size ?? "16px",
-    section_gap: input?.spacing?.section_gap ?? "80px",
-    container_width: input?.spacing?.container_width ?? "1200px",
-    card_radius: input?.radius?.card ?? "16px",
-    button_radius: input?.radius?.button ?? "10px",
-    input_radius: input?.radius?.input ?? "10px",
+    primary: input?.colors?.primary ?? d.primary,
+    secondary: input?.colors?.secondary ?? d.secondary,
+    accent: input?.colors?.accent ?? d.accent,
+    background: input?.colors?.background ?? d.background,
+    surface: input?.colors?.surface ?? d.surface,
+    heading_font: input?.typography?.heading_font ?? d.heading_font,
+    body_font: input?.typography?.body_font ?? d.body_font,
+    base_size: input?.typography?.base_size ?? d.base_size,
+    section_gap: input?.spacing?.section_gap ?? d.section_gap,
+    container_width: input?.spacing?.container_width ?? d.container_width,
+    card_radius: input?.radius?.card ?? d.card_radius,
+    button_radius: input?.radius?.button ?? d.button_radius,
+    input_radius: input?.radius?.input ?? d.input_radius,
   };
 }
 
-function WorkspaceTabContent({
-  initialForm,
-  currentRole,
-  canManageSettings,
-  isSaving,
-  onSave,
-}: {
-  initialForm: WorkspaceFormState;
-  currentRole: string | null;
-  canManageSettings: boolean;
+function useDraft<T>(initial: T) {
+  const [form, setForm] = useState<T>(initial);
+  useUnsavedChangesWarning({ when: JSON.stringify(form) !== JSON.stringify(initial) });
+  return [form, setForm] as const;
+}
+
+function WorkspaceTab(props: {
+  initial: WorkspaceFormState;
+  canManage: boolean;
   isSaving: boolean;
   onSave: (form: WorkspaceFormState) => Promise<void>;
 }) {
-  const [form, setForm] = useState<WorkspaceFormState>(initialForm);
-
-  const hasUnsavedChanges = JSON.stringify(form) !== JSON.stringify(initialForm);
-
-  useUnsavedChangesWarning({
-    when: hasUnsavedChanges,
-  });
-
+  const [form, setForm] = useDraft(props.initial);
   return (
     <WorkspaceSettingsPanel
       form={form}
-      initialForm={initialForm}
-      currentRole={currentRole}
-      canManageSettings={canManageSettings}
-      isSaving={isSaving}
+      initialForm={props.initial}
+      canManageSettings={props.canManage}
+      isSaving={props.isSaving}
       onChange={setForm}
-      onReset={() => setForm(initialForm)}
-      onSave={() => onSave(form)}
+      onReset={() => setForm(props.initial)}
+      onSave={() => props.onSave(form)}
     />
   );
 }
 
-function BrandingTabContent({
-  initialForm,
-  canManageSettings,
-  isSaving,
-  onSave,
-}: {
-  initialForm: BrandingFormState;
-  canManageSettings: boolean;
+function BrandingTab(props: {
+  initial: BrandingFormState;
+  canManage: boolean;
   isSaving: boolean;
   onSave: (form: BrandingFormState) => Promise<void>;
 }) {
-  const [form, setForm] = useState<BrandingFormState>(initialForm);
-
-  const hasUnsavedChanges = JSON.stringify(form) !== JSON.stringify(initialForm);
-
-  useUnsavedChangesWarning({
-    when: hasUnsavedChanges,
-  });
-
+  const [form, setForm] = useDraft(props.initial);
   return (
     <BrandingSettingsPanel
       form={form}
-      initialForm={initialForm}
-      canManageSettings={canManageSettings}
-      isSaving={isSaving}
+      initialForm={props.initial}
+      canManageSettings={props.canManage}
+      isSaving={props.isSaving}
       onChange={setForm}
-      onReset={() => setForm(initialForm)}
-      onSave={() => onSave(form)}
+      onReset={() => setForm(props.initial)}
+      onSave={() => props.onSave(form)}
     />
   );
 }
 
-export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>("workspace");
+function BillingTab({ plan, siteCount }: { plan: string; siteCount: number | null }) {
+  return (
+    <Card className="max-w-2xl">
+      <CardHeader className="mb-0">
+        <CardTitle>Plan</CardTitle>
+        <CardDescription>
+          Paid plans aren&apos;t switched on yet, so there&apos;s nothing to pay and no card on file.
+        </CardDescription>
+      </CardHeader>
+      <dl className="mt-6 grid grid-cols-2 border-t border-border">
+        <div className="flex flex-col gap-1 py-4 pr-4">
+          <dt className="type-label text-text-muted">Current plan</dt>
+          <dd className="type-h3 capitalize text-text">{plan}</dd>
+        </div>
+        <div className="flex flex-col gap-1 border-l border-border py-4 pl-4">
+          <dt className="type-label text-text-muted">Sites in this workspace</dt>
+          <dd className="type-h3 tabular text-text">
+            {siteCount === null ? <Skeleton className="mt-1 h-5 w-8" /> : siteCount}
+          </dd>
+        </div>
+      </dl>
+    </Card>
+  );
+}
+
+function SettingsContent() {
+  const searchParams = useSearchParams();
+  const requested = searchParams.get("tab");
+  const tab: Tab = requested === "branding" || requested === "billing" ? requested : "workspace";
 
   const {
     activeWorkspace,
-    currentRole,
     canManageSettings,
+    currentRole,
     workspaceQuery,
     themeQuery,
     updateWorkspaceMutation,
     updateThemeMutation,
   } = useSettings();
+  const { projectsQuery } = useProjects();
 
-  const workspaceData = workspaceQuery.data ?? null;
-  const themeData = themeQuery.data ?? null;
-
-  const initialWorkspaceForm = useMemo(
-    () => normalizeWorkspaceForm(workspaceData),
-    [workspaceData]
+  useDocumentTitle(
+    activeWorkspace ? `Settings · ${activeWorkspace.workspace.name}` : "Settings"
   );
 
-  const initialBrandingForm = useMemo(
-    () => normalizeBrandingForm(themeData),
-    [themeData]
+  const workspaceInitial = useMemo(
+    () => toWorkspaceForm(workspaceQuery.data ?? null),
+    [workspaceQuery.data]
   );
+  const brandingInitial = useMemo(() => toBrandingForm(themeQuery.data ?? null), [themeQuery.data]);
 
-  const isLoading = workspaceQuery.isPending || themeQuery.isPending;
-
-  const isSaving =
-    updateWorkspaceMutation.isPending || updateThemeMutation.isPending;
+  const query = tab === "branding" ? themeQuery : workspaceQuery;
 
   return (
-    <div className="space-y-10">
-      <section className="space-y-3">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-2">
-            <h1 className="font-heading text-4xl font-extrabold tracking-tight text-[#dee2f5]">
-              Workspace Settings
-            </h1>
-            <p className="max-w-2xl text-lg text-[#bbcac6]">
-              Configure your SiteOrbit workspace, branding system, and connected
-              product settings.
-            </p>
-          </div>
+    <div className="flex flex-col gap-8">
+      <PageHeader
+        title="Settings"
+        description={
+          canManageSettings
+            ? `Details and brand for ${activeWorkspace?.workspace.name ?? "this workspace"}.`
+            : `You have ${currentRole ?? "viewer"} access, so these settings are read-only.`
+        }
+      />
 
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="border-white/10 text-[#bbcac6]">
-              {activeWorkspace?.workspace.name ?? "Workspace"}
-            </Badge>
-            <Badge
-              variant="outline"
-              className="border-white/10 capitalize text-[#9aa6c0]"
-            >
-              {currentRole ?? "viewer"}
-            </Badge>
-            <Badge
-              variant="outline"
-              className={
-                isSaving
-                  ? "border-[#89ceff]/30 text-[#89ceff]"
-                  : "border-[#4fdbc8]/30 text-[#4fdbc8]"
-              }
-            >
-              {isSaving ? "Saving…" : "Ready"}
-            </Badge>
+      <NavTabs
+        label="Settings sections"
+        tabs={[
+          { label: "Workspace", href: "/settings", active: tab === "workspace" },
+          { label: "Branding", href: "/settings?tab=branding", active: tab === "branding" },
+          { label: "Billing", href: "/settings?tab=billing", active: tab === "billing" },
+        ]}
+      />
+
+      {tab !== "billing" && query.isPending ? (
+        <div className="flex flex-col gap-6 rounded-md border border-border p-6" aria-busy="true">
+          <Skeleton className="h-5 w-40" />
+          <div className="grid gap-6 md:grid-cols-2">
+            <Skeleton className="h-10 rounded-sm" />
+            <Skeleton className="h-10 rounded-sm" />
           </div>
+          <Skeleton className="h-24 rounded-sm" />
         </div>
-      </section>
-
-      <SettingsNav value={activeTab} onValueChange={setActiveTab} />
-
-      {isLoading ? (
-        <section className="rounded-xl bg-[#1a1f2d] p-8 text-[#bbcac6]">
-          <div className="flex items-center gap-3">
-            <Loader2 className="size-5 animate-spin text-[#4fdbc8]" />
-            Loading workspace settings…
-          </div>
-        </section>
       ) : null}
 
-      {!isLoading && activeTab === "workspace" ? (
-        <WorkspaceTabContent
-          key={JSON.stringify(initialWorkspaceForm)}
-          initialForm={initialWorkspaceForm}
-          currentRole={currentRole}
-          canManageSettings={canManageSettings}
+      {tab !== "billing" && query.isError ? (
+        <ErrorState title="Settings didn't load" error={query.error} onRetry={() => void query.refetch()} />
+      ) : null}
+
+      {tab === "workspace" && workspaceQuery.isSuccess ? (
+        <WorkspaceTab
+          key={JSON.stringify(workspaceInitial)}
+          initial={workspaceInitial}
+          canManage={canManageSettings}
           isSaving={updateWorkspaceMutation.isPending}
           onSave={async (form) => {
             await updateWorkspaceMutation.mutateAsync({
@@ -231,11 +201,11 @@ export default function SettingsPage() {
         />
       ) : null}
 
-      {!isLoading && activeTab === "branding" ? (
-        <BrandingTabContent
-          key={JSON.stringify(initialBrandingForm)}
-          initialForm={initialBrandingForm}
-          canManageSettings={canManageSettings}
+      {tab === "branding" && themeQuery.isSuccess ? (
+        <BrandingTab
+          key={JSON.stringify(brandingInitial)}
+          initial={brandingInitial}
+          canManage={canManageSettings}
           isSaving={updateThemeMutation.isPending}
           onSave={async (form) => {
             await updateThemeMutation.mutateAsync({
@@ -251,10 +221,7 @@ export default function SettingsPage() {
                 body_font: form.body_font,
                 base_size: form.base_size,
               },
-              spacing: {
-                section_gap: form.section_gap,
-                container_width: form.container_width,
-              },
+              spacing: { section_gap: form.section_gap, container_width: form.container_width },
               radius: {
                 card: form.card_radius,
                 button: form.button_radius,
@@ -265,26 +232,20 @@ export default function SettingsPage() {
         />
       ) : null}
 
-      {!isLoading && activeTab === "domains" ? (
-        <SettingsPlaceholderPanel
-          title="Domains"
-          description="Custom domains already have a dedicated product surface. This tab is reserved for a future settings-level summary and quick actions."
-        />
-      ) : null}
-
-      {!isLoading && activeTab === "api" ? (
-        <SettingsPlaceholderPanel
-          title="API & Webhooks"
-          description="This is a planned MVP placeholder for future API key and webhook controls. Keeping it here preserves the product structure without overbuilding."
-        />
-      ) : null}
-
-      {!isLoading && activeTab === "billing" ? (
-        <SettingsPlaceholderPanel
-          title="Billing"
-          description="Billing is intentionally out of real MVP scope for now, but the tab remains in the product shell so the settings architecture stays complete and realistic."
+      {tab === "billing" ? (
+        <BillingTab
+          plan={activeWorkspace?.workspace.plan ?? "free"}
+          siteCount={projectsQuery.data ? projectsQuery.data.length : null}
         />
       ) : null}
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense>
+      <SettingsContent />
+    </Suspense>
   );
 }

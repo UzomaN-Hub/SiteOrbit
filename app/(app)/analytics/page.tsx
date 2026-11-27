@@ -1,107 +1,166 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { BarChart3 } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-import AnalyticsPageClient from "@/components/analytics/analytics-page-client";
-import { useAnalytics } from "@/hooks/use-analytics";
+import AnalyticsOverview from "@/components/analytics/analytics-overview";
+import EmptyState from "@/components/shared/empty-state";
+import ErrorState from "@/components/shared/error-state";
+import PageHeader from "@/components/shared/page-header";
+import Segmented from "@/components/shared/segmented";
+import { SitesTableSkeleton, siteTone } from "@/components/sites/sites-table";
+import { StatusDot } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { useProjects } from "@/hooks/use-projects";
+import type { AnalyticsRange } from "@/types/analytics";
 
-export default function AnalyticsPage() {
+function AnalyticsSkeleton() {
+  return (
+    <div className="flex flex-col gap-12" role="status" aria-busy="true" aria-label="Loading analytics">
+      <div className="grid grid-cols-2 gap-6 border-y border-border py-6 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((item) => (
+          <div key={item} className="flex flex-col gap-3">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-7 w-24" />
+            <Skeleton className="h-3 w-28" />
+          </div>
+        ))}
+      </div>
+      <Skeleton className="h-72 w-full rounded-md" />
+    </div>
+  );
+}
+
+function AnalyticsContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
+  const { projectsQuery } = useProjects();
   const { range, setRange, analyticsQuery, data } = useAnalytics(projectId);
+
+  useDocumentTitle("Analytics");
+
+  const sites = projectsQuery.data ?? [];
+  const current = sites.find((site) => site.id === projectId);
 
   if (!projectId) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center px-6">
-        <div className="max-w-xl rounded-2xl border border-dashed border-white/10 bg-[#111522] px-8 py-10 text-center">
-          <h2 className="text-2xl font-bold text-[#dee2f5]">Pick a project first</h2>
-          <p className="mt-3 text-sm leading-7 text-[#9aa6c0]">
-            Open analytics from a project so SiteOrbit can load the correct metrics.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (analyticsQuery.isPending) {
-    return (
-      <div className="space-y-8">
-        <section className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-          <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#4fdbc8]">
-              Analytics overview
-            </p>
-            <h1 className="font-heading text-4xl font-extrabold tracking-tight text-[#dee2f5]">
-              Measure your orbit.
-            </h1>
-          </div>
-        </section>
-
-        <section className="grid gap-5 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-[154px] animate-pulse rounded-xl bg-[#1a1f2d]" />
-          ))}
-        </section>
-      </div>
-    );
-  }
-
-  if (analyticsQuery.isError) {
-    return (
-      <div className="rounded-xl border border-white/8 bg-[#1a1f2d] px-6 py-8">
-        <p className="text-lg font-semibold text-[#dee2f5]">
-          Analytics could not be loaded
-        </p>
-        <p className="mt-2 text-sm leading-6 text-[#bbcac6]">
-          {analyticsQuery.error instanceof Error
-            ? analyticsQuery.error.message
-            : "Something went wrong while loading analytics."}
-        </p>
-        <Button
-          type="button"
-          onClick={() => void analyticsQuery.refetch()}
-          className="mt-5 h-11 rounded-md px-5"
-        >
-          Try again
-        </Button>
+      <div className="flex flex-col gap-8">
+        <PageHeader
+          title="Analytics"
+          description="Visits, top pages and traffic sources for each site. Choose a site to see its numbers."
+        />
+        {projectsQuery.isPending ? (
+          <SitesTableSkeleton />
+        ) : projectsQuery.isError ? (
+          <ErrorState
+            title="Sites didn't load"
+            error={projectsQuery.error}
+            onRetry={() => void projectsQuery.refetch()}
+          />
+        ) : sites.length ? (
+          <ul className="border-t border-border">
+            {sites.map((site) => (
+              <li key={site.id}>
+                <Link
+                  href={`/analytics?projectId=${site.id}`}
+                  className="flex h-14 items-center justify-between gap-4 border-b border-border transition-colors duration-(--dur-fast) hover:bg-surface-2"
+                >
+                  <span className="truncate type-ui text-text">{site.name}</span>
+                  <StatusDot tone={siteTone(site.status)} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyState
+            title="No sites to measure yet"
+            description="Analytics start once a site exists. Create one from the Sites tab."
+            action={
+              <Button asChild>
+                <Link href="/dashboard">Go to sites</Link>
+              </Button>
+            }
+          />
+        )}
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <section className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div>
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#4fdbc8]">
-            Analytics overview
-          </p>
-          <h1 className="font-heading text-4xl font-extrabold tracking-tight text-[#dee2f5]">
-            Measure your orbit.
-          </h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-[#bbcac6]">
-            Read the most important traffic signals first, then inspect page performance.
-          </p>
-        </div>
+    <div className="flex flex-col gap-8">
+      <PageHeader
+        title="Analytics"
+        description={
+          current ? (
+            <>
+              Traffic for <span className="text-text">{current.name}</span>.
+            </>
+          ) : (
+            "Traffic for this site."
+          )
+        }
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            {sites.length > 1 ? (
+              <Select
+                value={projectId}
+                onValueChange={(value) => router.push(`/analytics?projectId=${value}`)}
+              >
+                <SelectTrigger size="sm" className="w-48" aria-label="Site">
+                  <SelectValue placeholder="Choose a site" />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  {sites.map((site) => (
+                    <SelectItem key={site.id} value={site.id}>
+                      {site.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
+            <Segmented<AnalyticsRange>
+              label="Date range"
+              value={range}
+              onChange={setRange}
+              options={[
+                { value: "7d", label: "7 days" },
+                { value: "30d", label: "30 days" },
+                { value: "90d", label: "90 days" },
+              ]}
+            />
+          </div>
+        }
+      />
 
-        <div className="flex items-center gap-2 rounded-xl bg-[#111522] p-1">
-          {(["7d", "30d", "90d"] as const).map((value) => (
-            <Button
-              key={value}
-              type="button"
-              variant={range === value ? "default" : "ghost"}
-              className="h-10 rounded-md"
-              onClick={() => setRange(value)}
-            >
-              <BarChart3 data-icon="inline-start" />
-              {value}
-            </Button>
-          ))}
-        </div>
-      </section>
-
-      <AnalyticsPageClient data={data} />
+      {analyticsQuery.isPending ? <AnalyticsSkeleton /> : null}
+      {analyticsQuery.isError ? (
+        <ErrorState
+          title="Analytics didn't load"
+          error={analyticsQuery.error}
+          onRetry={() => void analyticsQuery.refetch()}
+        />
+      ) : null}
+      {analyticsQuery.isSuccess ? <AnalyticsOverview data={data} /> : null}
     </div>
+  );
+}
+
+export default function AnalyticsPage() {
+  return (
+    <Suspense fallback={<AnalyticsSkeleton />}>
+      <AnalyticsContent />
+    </Suspense>
   );
 }

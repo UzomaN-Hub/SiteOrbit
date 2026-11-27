@@ -1,21 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MailPlus, ShieldAlert, Users } from "lucide-react";
+import { Lock, Plus } from "lucide-react";
 import { toast } from "sonner";
 
-import { useTeam } from "@/hooks/use-team";
+import ErrorState, { errorMessage } from "@/components/shared/error-state";
+import PageHeader from "@/components/shared/page-header";
+import InviteDialog from "@/components/team/invite-dialog";
+import { Avatar } from "@/components/ui/avatar";
+import { StatusDot } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription as DialogText,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Field, FieldContent, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -23,9 +17,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { useTeam } from "@/hooks/use-team";
+import { roleOptions } from "@/lib/constants/roles";
+import { formatRelative } from "@/lib/utils/format";
 import type { WorkspaceRole } from "@/types/workspace";
 
-const roleOptions: WorkspaceRole[] = ["owner", "admin", "editor", "viewer"];
+function RowsSkeleton({ rows = 3 }: { rows?: number }) {
+  return (
+    <div aria-busy="true" className="border-t border-border">
+      {Array.from({ length: rows }).map((_, index) => (
+        <div key={index} className="flex h-14 items-center gap-3 border-b border-border">
+          <Skeleton className="size-8 rounded-full" data-allow-round />
+          <Skeleton className="h-3.5 w-40" />
+          <Skeleton className="ml-auto h-3.5 w-20" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function TeamPage() {
   const {
@@ -34,282 +53,169 @@ export default function TeamPage() {
     canManageTeam,
     membersQuery,
     invitationsQuery,
-    inviteMemberMutation,
     updateMemberRoleMutation,
   } = useTeam();
-
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<WorkspaceRole>("viewer");
-  const [inviteError, setInviteError] = useState<string | null>(null);
+
+  useDocumentTitle(activeWorkspace ? `Team · ${activeWorkspace.workspace.name}` : "Team");
 
   const members = membersQuery.data ?? [];
-  const invitations = invitationsQuery.data ?? [];
-
   const pendingInvites = useMemo(
-    () => invitations.filter((item) => item.status === "pending"),
-    [invitations]
+    () => (invitationsQuery.data ?? []).filter((invite) => invite.status === "pending"),
+    [invitationsQuery.data]
   );
 
-  const handleInvite = async () => {
-    const email = inviteEmail.trim().toLowerCase();
-
-    if (!email || !email.includes("@")) {
-      setInviteError("Enter a valid email address.");
-      return;
-    }
-
-    try {
-      setInviteError(null);
-      await inviteMemberMutation.mutateAsync({
-        email,
-        role: inviteRole,
-      });
-      setInviteEmail("");
-      setInviteRole("viewer");
-      setInviteOpen(false);
-      toast.success("Invitation sent successfully.");
-    } catch (error) {
-      setInviteError(
-        error instanceof Error ? error.message : "Invitation could not be sent."
-      );
-    }
-  };
-
-  const handleRoleChange = async (memberId: string, role: WorkspaceRole) => {
+  const changeRole = async (memberId: string, name: string, role: WorkspaceRole) => {
     try {
       await updateMemberRoleMutation.mutateAsync({ memberId, role });
-      toast.success("Member role updated.");
+      toast.success(`${name} is now ${role === "admin" || role === "owner" ? "an" : "a"} ${role}.`);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Role could not be updated."
-      );
+      toast.error(errorMessage(error, `${name}'s role couldn't be changed. Try again.`));
     }
   };
 
-  const workspaceName = activeWorkspace?.workspace.name ?? "this workspace";
-
   return (
-    <>
-      <div className="space-y-8">
-        <section className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-          <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#4fdbc8]">
-              Team management
-            </p>
-            <h1 className="font-heading text-4xl font-extrabold tracking-tight text-[#dee2f5]">
-              Keep the right people in orbit.
-            </h1>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-[#bbcac6]">
-              Manage collaborators, control roles, and track pending invitations in {workspaceName}.
-            </p>
-          </div>
-
-          <Button
-            type="button"
-            className="h-12 rounded-md px-5"
-            disabled={!canManageTeam}
-            onClick={() => setInviteOpen(true)}
-          >
-            <MailPlus data-icon="inline-start" />
-            Invite Member
-          </Button>
-        </section>
-
-        {!canManageTeam ? (
-          <div className="flex items-start gap-3 rounded-xl border border-white/8 bg-[#1a1f2d] px-4 py-4">
-            <ShieldAlert className="mt-0.5 size-5 shrink-0 text-[#ffcf7d]" />
-            <div>
-              <p className="font-medium text-[#dee2f5]">Limited access</p>
-              <p className="mt-1 text-sm leading-6 text-[#bbcac6]">
-                Your current role is <span className="capitalize">{currentRole ?? "viewer"}</span>.
-                You can view team information, but only owners and admins can invite
-                members or change roles. 
-              </p>
-            </div>
-          </div>
+    <div className="flex flex-col gap-12">
+      <PageHeader
+        title="Team"
+        description={`People who can work on ${activeWorkspace?.workspace.name ?? "this workspace"}, and what each of them can do.`}
+        action={
+          canManageTeam ? (
+            <Button onClick={() => setInviteOpen(true)}>
+              <Plus />
+              Invite member
+            </Button>
+          ) : null
+        }
+      >
+        {!canManageTeam && currentRole ? (
+          <p className="flex items-center gap-2 type-small text-text-muted">
+            <Lock className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+            Only owners and admins can invite people or change roles.
+          </p>
         ) : null}
+      </PageHeader>
 
-        <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-          <Card className="rounded-xl border-none bg-[#1a1f2d]">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Users className="size-5 text-[#4fdbc8]" />
-                <CardTitle className="text-xl font-bold text-[#dee2f5]">
-                  Members
-                </CardTitle>
-              </div>
-              <CardDescription className="text-[#bbcac6]">
-                Role-aware workspace membership with clear visibility. 
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {membersQuery.isPending ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="h-16 animate-pulse rounded-xl bg-[#111522]" />
-                  ))}
-                </div>
-              ) : membersQuery.isError ? (
-                <div className="rounded-xl bg-[#111522] p-4 text-sm text-[#bbcac6]">
-                  {membersQuery.error instanceof Error
-                    ? membersQuery.error.message
-                    : "Members could not be loaded."}
-                </div>
-              ) : members.length ? (
-                <div className="overflow-hidden rounded-xl border border-white/8">
-                  <div className="grid grid-cols-[1.1fr_1.1fr_0.8fr_0.8fr] gap-4 bg-[#111522] px-4 py-3 text-xs uppercase tracking-[0.16em] text-[#859490]">
-                    <span>Member</span>
-                    <span>Email</span>
-                    <span>Role</span>
-                    <span>Status</span>
-                  </div>
-
-                  {members.map((member) => (
-                    <div
-                      key={member.id}
-                      className="grid grid-cols-[1.1fr_1.1fr_0.8fr_0.8fr] gap-4 border-t border-white/8 bg-[#151a27] px-4 py-4 text-sm text-[#dee2f5]"
-                    >
-                      <span className="font-medium">{member.name}</span>
-                      <span className="text-[#bbcac6]">{member.email}</span>
-                      <div>
-                        {canManageTeam ? (
-                          <Select
-                            value={member.role}
-                            onValueChange={(value) =>
-                              void handleRoleChange(member.id, value as WorkspaceRole)
-                            }
-                          >
-                            <SelectTrigger className="h-9 border-white/8 bg-[#111522] text-[#dee2f5]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {roleOptions.map((role) => (
-                                <SelectItem key={role} value={role}>
-                                  {role}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <span className="capitalize">{member.role}</span>
-                        )}
+      <section className="flex flex-col gap-4" aria-labelledby="members-title">
+        <h2 id="members-title" className="type-h3 text-text">
+          Members
+        </h2>
+        {membersQuery.isPending ? (
+          <RowsSkeleton />
+        ) : membersQuery.isError ? (
+          <ErrorState
+            title="Members didn't load"
+            error={membersQuery.error}
+            onRetry={() => void membersQuery.refetch()}
+          />
+        ) : (
+          <Table>
+            <TableHeader>
+              <tr>
+                <TableHead>Name</TableHead>
+                <TableHead className="hidden md:table-cell">Email</TableHead>
+                <TableHead className="w-40">Role</TableHead>
+                <TableHead className="hidden w-28 sm:table-cell">Status</TableHead>
+              </tr>
+            </TableHeader>
+            <TableBody>
+              {members.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell className="max-w-0">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={member.name} src={member.avatar} size={32} />
+                      <div className="min-w-0">
+                        <p className="truncate">{member.name}</p>
+                        <p className="truncate type-small text-text-muted md:hidden">
+                          {member.email}
+                        </p>
                       </div>
-                      <span className="capitalize text-[#4fdbc8]">{member.status}</span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-xl bg-[#111522] p-4 text-sm text-[#bbcac6]">
-                  No team members are visible yet.
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  </TableCell>
+                  <TableCell className="hidden text-text-muted md:table-cell">
+                    {member.email}
+                  </TableCell>
+                  <TableCell>
+                    {canManageTeam ? (
+                      <Select
+                        value={member.role}
+                        onValueChange={(value) =>
+                          void changeRole(member.id, member.name, value as WorkspaceRole)
+                        }
+                      >
+                        <SelectTrigger
+                          size="sm"
+                          className="w-32 capitalize"
+                          aria-label={`Role for ${member.name}`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roleOptions.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              <span className="capitalize">{role}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <span className="capitalize">{member.role}</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <StatusDot
+                      tone={member.status === "active" ? "live" : "pending"}
+                      label={member.status === "active" ? "Active" : "Pending"}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </section>
 
-          <Card className="rounded-xl border-none bg-[#1a1f2d]">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold text-[#dee2f5]">
-                Pending invitations
-              </CardTitle>
-              <CardDescription className="text-[#bbcac6]">
-                Invites should be visible immediately with role and status badges.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {invitationsQuery.isPending ? (
-                Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className="h-16 animate-pulse rounded-xl bg-[#111522]" />
-                ))
-              ) : invitationsQuery.isError ? (
-                <div className="rounded-xl bg-[#111522] p-4 text-sm text-[#bbcac6]">
-                  {invitationsQuery.error instanceof Error
-                    ? invitationsQuery.error.message
-                    : "Invitations could not be loaded."}
-                </div>
-              ) : pendingInvites.length ? (
-                pendingInvites.map((invite) => (
-                  <div key={invite.id} className="rounded-xl bg-[#111522] p-4">
-                    <p className="font-medium text-[#dee2f5]">{invite.email}</p>
-                    <p className="mt-1 text-sm text-[#9aa6c0]">
-                      Role: <span className="capitalize">{invite.role}</span>
-                    </p>
-                    <p className="mt-1 text-sm text-[#4fdbc8] capitalize">
-                      {invite.status}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-xl bg-[#111522] p-4 text-sm text-[#bbcac6]">
-                  No pending invitations right now.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <section className="flex flex-col gap-4" aria-labelledby="invites-title">
+        <h2 id="invites-title" className="type-h3 text-text">
+          Pending invitations
+        </h2>
+        {invitationsQuery.isPending ? (
+          <RowsSkeleton rows={2} />
+        ) : invitationsQuery.isError ? (
+          <ErrorState
+            title="Invitations didn't load"
+            error={invitationsQuery.error}
+            onRetry={() => void invitationsQuery.refetch()}
+          />
+        ) : pendingInvites.length ? (
+          <Table>
+            <TableHeader>
+              <tr>
+                <TableHead>Email</TableHead>
+                <TableHead className="w-40">Role</TableHead>
+                <TableHead className="hidden w-40 sm:table-cell">Sent</TableHead>
+              </tr>
+            </TableHeader>
+            <TableBody>
+              {pendingInvites.map((invite) => (
+                <TableRow key={invite.id}>
+                  <TableCell className="max-w-0 truncate">{invite.email}</TableCell>
+                  <TableCell className="capitalize">{invite.role}</TableCell>
+                  <TableCell className="hidden text-text-muted sm:table-cell">
+                    {formatRelative(invite.created_at)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <p className="border-y border-border py-6 type-body text-text-muted">
+            No invitations waiting. People you invite show up here until they accept.
+          </p>
+        )}
+      </section>
 
-      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="border-white/8 bg-[#121826] text-[#dee2f5] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Invite a new member</DialogTitle>
-            <DialogText className="text-[#9aa6c0]">
-              Add the right collaborator with the right workspace role.
-            </DialogText>
-          </DialogHeader>
-
-          <div className="space-y-5">
-            <Field>
-              <FieldLabel className="text-xs uppercase tracking-[0.18em] text-[#bbcac6]">
-                Email address
-              </FieldLabel>
-              <FieldContent>
-                <Input
-                  value={inviteEmail}
-                  onChange={(event) => setInviteEmail(event.target.value)}
-                  placeholder="name@company.com"
-                  className="h-12 rounded-xl border-white/8 bg-[#161b29] text-[#dee2f5] placeholder:text-white/20"
-                />
-                <FieldError errors={inviteError ? [{ message: inviteError }] : []} />
-              </FieldContent>
-            </Field>
-
-            <Field>
-              <FieldLabel className="text-xs uppercase tracking-[0.18em] text-[#bbcac6]">
-                Role
-              </FieldLabel>
-              <FieldContent>
-                <Select
-                  value={inviteRole}
-                  onValueChange={(value) => setInviteRole(value as WorkspaceRole)}
-                >
-                  <SelectTrigger className="h-12 rounded-xl border-white/8 bg-[#161b29] text-[#dee2f5]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roleOptions.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FieldContent>
-            </Field>
-
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                className="h-11 rounded-md px-5"
-                disabled={inviteMemberMutation.isPending}
-                onClick={() => void handleInvite()}
-              >
-                Invite Member
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+      <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} />
+    </div>
   );
 }
