@@ -22,7 +22,7 @@ Status of the SiteOrbit redesign and what comes next. Update this at the end of 
 
 ## Waiting on Uzoma
 
-- [ ] **Sign-in is down because the API isn't responding.** On 2026-11-27, `siteorbit-backend.onrender.com` accepted connections but never answered (100-second timeout). The API connects to Supabase on startup, and Supabase pauses free projects after a week without activity. Check Supabase (restore the project if it says Paused), then Render's logs, and redeploy.
+- [ ] **Sign-in is down because the API can't reach its database.** Render's log (2026-11-27) shows the Supabase pooler failing with `EAUTHQUERY ... connection to database not available`, so the API exits at startup. The project isn't paused. Check the Supabase project health, restart the project, check status.supabase.com (eu-west-2) and disk usage, then redeploy on Render.
 - [ ] **For previews:** on Render, set `FRONTEND_ORIGIN_REGEX=https://site-orbit-[a-z0-9-]+-uzoma-nwaiwus-projects\.vercel\.app` (after merging the backend PR). On Vercel, make sure `NEXT_PUBLIC_API_URL` is enabled for **Preview** as well as Production.
 
 - [ ] Are the prices ($49, $129, Custom) and plan features real? They're kept, reworded in plain language.
