@@ -2,8 +2,8 @@
 
 ### A multi-tenant SaaS website builder for modern teams 
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=flat-square&logo=next.js)](https://nextjs.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Next.js](https://img.shields.io/badge/Next.js-16.4-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.165-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776ab?style=flat-square&logo=python)](https://python.org)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-4.x-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
@@ -46,7 +46,7 @@ It was built as a flagship piece designed to demonstrate:
 - **Role-based access control** that surfaces in both the UI and the backend
 - **A functional visual page builder** with block management, canvas editing, save/load cycles, and publish flow
 - **A real FastAPI backend** with JWT authentication, refresh tokens, OAuth2 (Google + GitHub), and PostgreSQL/SQLite persistence
-- **Production-grade frontend architecture** using Next.js App Router, Zustand, TanStack Query, Framer Motion, and a custom design system
+- **Production-grade frontend architecture** using Next.js App Router, Zustand, TanStack Query, CSS-only motion, and a custom three-colour design system with light and dark modes
 
 This is not a dashboard mockup. It is a working, deployable SaaS application with a real API, real auth, real data persistence, and a polished UI across every screen.
 
@@ -58,14 +58,15 @@ This is not a dashboard mockup. It is a working, deployable SaaS application wit
 |---|---|
 | Multi-tenant SaaS patterns | Workspace isolation, switcher, membership, per-workspace data |
 | Role-based interface | Owner, Admin, Editor, Viewer — each sees a different product |
-| Visual editor engineering | Block canvas, properties panel, drag-reorder, viewport switching, save states |
+| Visual editor engineering | Block canvas, properties panel, move up/down, viewport switching, save states |
 | Advanced state management | Zustand stores per domain, TanStack Query for server state, cookie/session sync |
-| Animation & motion | Framer Motion throughout — stagger, blur-in, spring physics, layout transitions |
+| Animation & motion | CSS keyframes and one IntersectionObserver — word-by-word hero, scroll reveals, sliding tab underline; respects reduced motion |
 | API design | RESTful FastAPI backend, typed endpoints, services layer, middleware |
 | Real authentication | JWT access/refresh tokens, OAuth2 with Google and GitHub, session persistence |
-| Component architecture | 100+ components across shared UI, domain features, layouts, and providers |
+| Component architecture | ~50 focused components across shared UI, domain features, layouts, and providers |
 | TypeScript discipline | Full type coverage across API contracts, store types, route props, and form schemas |
-| Performance thinking | Route-level code splitting, dynamic imports for builder, TanStack Query caching |
+| Performance thinking | Route-level code splitting, a separate full-screen builder route, TanStack Query caching, no animation library |
+| Quality & testing | Playwright end-to-end and axe accessibility tests on desktop and mobile, a design lint, CI on every pull request |
 
 ---
 
@@ -84,10 +85,11 @@ The demo tells a product story in under three minutes and makes the multi-tenant
 ## Features
 
 ### Public Marketing Surface
-- Animated landing page with hero section, feature grid, and pricing teaser
+- Landing page with a word-by-word hero, real product screenshot, "How it works", and pricing
 - Sign In, Sign Up, and Forgot Password flows
 - Invitation acceptance flow (`/accept-invite`)
-- Animated left visual panel on auth screens (the "AuthOrbitVisual" — pulsing orbital rings, floating orbs)
+- Single-column auth screens with inline field errors and Google / GitHub sign-in
+- Light and dark mode — follows the system setting, switchable from the footer or account menu
 
 ### Workspace Management
 - Create unlimited workspaces with unique slugs
@@ -104,34 +106,34 @@ Four roles with cascading permissions:
 | **Owner** | Everything — delete workspace, manage roles, all CRUD |
 | **Admin** | Manage members, create/delete projects, change themes |
 | **Editor** | Build pages, save/publish, update content |
-| **Viewer** | Read-only builder access with a visible lock banner |
+| **Viewer** | Read-only builder access, marked "View only" in the toolbar |
 
-RBAC is enforced at the backend service layer and reflected in the frontend. A viewer landing on the builder sees a permission banner explaining their role. Restricted buttons are disabled. Settings forms are locked. Nothing fails silently.
+RBAC is enforced at the backend service layer and reflected in the frontend. A viewer landing on the builder sees "View only" in the toolbar and the editing panels are disabled. Restricted buttons are disabled. Settings forms are locked. Nothing fails silently.
 
 ### Visual Page Builder
 The builder is the most complex feature and lives in its own route (`/builder?projectId=...&pageId=...`).
 
 **Toolbar:**
 - Project name and current page path in the header
-- Animated save-status badge: `Idle → Saving… → Saved → Unsaved changes → Error`
+- Save status text: `All changes saved → Saving… → Unsaved changes → Couldn't save`
 - Desktop / Tablet / Mobile viewport switcher with icon buttons
 - Page selector dropdown — switch between pages without losing builder state
-- New page creation button
+- New page option in the page selector
 - Preview mode toggle — hides panels and shows clean canvas
-- Save and Publish buttons with loading spinners
+- Save and Publish buttons with loading indicators
 
 **Blocks Panel (left):**
 - Block library with four block types: Hero, Text, Features, CTA
-- Each block has an icon, title, and description
+- Each block has a title and a one-line description
 - Click to add a block to the canvas, disabled when role is Viewer
-- Spring-animated hover/tap feedback
 
 **Canvas (center):**
-- Viewport-constrained width (`max-w-sm` for mobile, `max-w-2xl` for tablet, full width for desktop)
+- Viewport-constrained width (390px for mobile, 720px for tablet, 960px for desktop)
+- Always rendered on a light page, in both themes, so client sites preview the way visitors will see them
 - Blocks render as styled cards with their live content
-- Click a block to select it (highlights with a ring, shows in the properties panel)
+- Click a block to select it (thin amber outline, shows in the properties panel)
 - Move up / Move down buttons per block
-- Delete button per block with hover animation
+- Delete button per block
 - Read-only mode: controls hidden when user lacks edit permission
 - Empty canvas state with instruction copy
 
@@ -148,11 +150,12 @@ The builder is the most complex feature and lives in its own route (`/builder?pr
 - `ensureDefaultPage` creates a "Homepage" page automatically if a project has none
 
 ### Project Management
-- Card-based project grid with status chips (Draft, Published, Archived)
-- Create project modal with name and description
-- Publish / Unpublish toggle per card (owner/admin/editor only)
-- Delete project with confirmation dialog (owner/admin only)
-- Cards link directly to the builder and to analytics for that project
+- Sites table on the home page with Live / Draft status (a dot plus a word), All / Live / Draft filter and search
+- New site dialog with name and description
+- Publish / Move back to draft from each row's menu (owner/admin/editor only)
+- Delete site with confirmation dialog (owner/admin only)
+- Rows open the builder; the row menu also links to that site's analytics
+- `/projects` redirects to the Sites home
 
 ### Analytics Dashboard
 - Metric cards: Unique Visitors, Conversions, Conversion Rate, Top Page Views
@@ -162,24 +165,21 @@ The builder is the most complex feature and lives in its own route (`/builder?pr
 - Analytics data is generated server-side with a deterministic seeded RNG — the same project always produces the same believable numbers
 
 ### Team Management
-- Member table with avatar initials, name, email, role badge, and status badge
-- Role color coding: Owner = teal, Admin = blue, Editor = muted, Viewer = default
+- Member table with avatar initials, name, email, role, and status
+- Roles are plain words and status is a dot plus a word — no colour coding
 - Invite Member modal — email input + role selector, validated with React Hook Form + Zod
 - Role update endpoint wired to backend (owner-only for changing other owners)
 
 ### Settings
-- Tabbed navigation: Workspace, Branding, Domains, API, Billing
+- Tabbed navigation: Workspace, Branding, Billing (Domains has its own tab in the top navigation)
 - **Workspace tab:** name, primary domain, description — permission-locked for viewers
 - **Branding tab:** full theme editor — 5 color pickers with hex inputs, heading and body font, base size, section gap, container width, card/button/input radius — live preview tokens
 - Unsaved changes detection — Save and Reset buttons activate only when changes exist
-- Role badge displayed in the settings sidebar (shows your current permission tier)
 
 ### Dashboard
-- KPI stat cards (project count, member count, published count)
-- Recent projects snapshot
-- Recent members snapshot
-- Activity feed (last updated project, active member, draft count)
-- Empty state with a guided CTA when the workspace has no projects yet
+- The dashboard is the Sites home: a one-line summary ("4 sites · 2 live · 1 member") above the sites table
+- Top bar with workspace switcher and account menu, and tabs for Sites, Analytics, Team, Domains, Settings — no sidebar
+- Empty states with a clear next step when there's no workspace or no sites yet
 
 ---
 
@@ -189,42 +189,42 @@ The builder is the most complex feature and lives in its own route (`/builder?pr
 
 | Layer | Tool | Version | Why it was chosen |
 |---|---|---|---|
-| Framework | **Next.js** | 16.2.1 | App Router, route groups, server/client split, deployment-ready |
+| Framework | **Next.js** | 16.4.6 | App Router, route groups, server/client split, deployment-ready |
 | Language | **TypeScript** | 5.x | Full type safety across components, API contracts, and stores |
 | Styling | **Tailwind CSS** | 4.x | Utility-first, consistent design system, no CSS files to manage |
-| Component primitives | **shadcn/ui + Radix UI** | Latest | Accessible, unstyled base — full design control preserved |
-| Animation | **Framer Motion** | 12.38 | Spring physics, layout animations, stagger, blur transitions |
+| Component primitives | **Radix UI** | 1.4 | Accessible, unstyled base — restyled to the SiteOrbit design system |
+| Animation | **CSS keyframes + IntersectionObserver** | — | No runtime library; every animation respects reduced motion |
+| Fonts | **Fraunces + Hanken Grotesk** | — | Loaded with `next/font`; a serif for headings, a grotesk for UI |
 | Client state | **Zustand** | 5.0 | Lightweight, slice-based stores for auth, builder, and workspace |
 | Server state | **TanStack Query** | 5.95 | Fetching, caching, invalidation, background refetching |
 | Forms | **React Hook Form** | 7.72 | Performant uncontrolled forms with minimal re-renders |
 | Schema validation | **Zod** | 4.3 | Runtime schema validation for forms and API input |
-| Drag and drop | **dnd-kit** | 6.3 | Builder block reorder — accessible, headless, composable |
-| Charts | **Recharts** | 3.8 | Analytics charts — low complexity, composable components |
-| Notifications | **Sonner** | 2.0 | Toast system — styled to match the dark UI |
+| Charts | **Recharts** | 3.8 | Analytics charts — drawn in `currentColor` so they follow the theme |
+| Notifications | **Sonner** | 2.0 | Toast system — styled with the app's own tokens |
 | Icons | **Lucide React** | 1.7 | Consistent icon set, tree-shakeable |
-| Theme switching | **next-themes** | 0.4 | Dark/light/system mode with zero flash |
+| Theme switching | Inline script + CSS tokens | — | Dark/light/system with no flash and no dependency |
 | Class composition | **clsx + tailwind-merge** | Latest | Conflict-safe Tailwind class merging |
 | Variant styling | **class-variance-authority** | 0.7 | Component variant system (buttons, badges) |
-| Resizable panels | **react-resizable-panels** | 4.8 | Splitter panels in the builder layout |
 | HTTP client | Native `fetch` | — | Custom typed `apiClient` wrapper with error handling |
+| Testing | **Playwright + axe-core** | 1.65 / 4.14 | End-to-end, accessibility and design checks on desktop and mobile |
 
 ### Backend
 
 | Layer | Tool | Version | Why it was chosen |
 |---|---|---|---|
-| Framework | **FastAPI** | 0.135.2 | Async, auto-docs, type-safe, production-ready |
+| Framework | **FastAPI** | 0.165.0 | Async, auto-docs, type-safe, production-ready |
 | Language | **Python** | 3.11+ | Modern typing, dataclasses, match statements |
-| ORM | **SQLAlchemy** | 2.0.48 | Declarative models, typed mapped columns, relationship loading |
-| Migrations | **Alembic** | 1.18.4 | Schema migration management (wired for MVP stabilization) |
+| ORM | **SQLAlchemy** | 2.1.9 | Declarative models, typed mapped columns, relationship loading |
+| Migrations | **Alembic** | 1.20.1 | Schema migration management (wired for MVP stabilization) |
 | Database | **SQLite** (dev) / **PostgreSQL** (prod) | — | SQLite for frictionless local development; Postgres for deployment |
 | Auth tokens | **python-jose** | 3.5 | JWT encoding/decoding with HS256 |
-| Password hashing | **passlib + bcrypt** | 1.7 / 4.0 | Bcrypt with automatic salting |
-| Rate limiting | **slowapi** | 0.1.9 | IP-based rate limiting on auth endpoints |
+| Password hashing | **passlib + bcrypt** | 1.9 / 5.0 | Bcrypt with automatic salting |
+| Rate limiting | **slowapi** | 0.1.10 | IP-based rate limiting on auth endpoints |
 | HTTP client | **httpx** | 0.28 | Async-capable HTTP client for OAuth provider calls |
-| Settings | **pydantic-settings** | 2.13 | `.env`-backed typed settings with validation |
-| ASGI server | **Uvicorn** | 0.42 | Production ASGI server with standard extras |
-| Testing | **pytest + httpx TestClient** | 8.4 | Integration and unit tests with full DB reset per test |
-| Postgres driver | **psycopg** | 3.2 | Modern async-capable Postgres driver |
+| Settings | **pydantic-settings** | 2.16 | `.env`-backed typed settings with validation |
+| ASGI server | **Uvicorn** | 0.54 | Production ASGI server with standard extras |
+| Testing | **pytest + httpx TestClient** | 9.2 | Integration and unit tests with full DB reset per test |
+| Postgres driver | **psycopg** | 3.3 | Modern async-capable Postgres driver |
 
 ---
 
@@ -232,30 +232,31 @@ The builder is the most complex feature and lives in its own route (`/builder?pr
 
 ### Frontend Architecture
 
-The Next.js App Router is organized into three route groups:
+The Next.js App Router is organized into four route groups:
 
 ```
 app/
-├── (app)/          ← Protected workspace shell (Dashboard, Builder, etc.)
+├── (app)/          ← Protected workspace shell (Sites, Analytics, Team, Domains, Settings)
+├── (editor)/       ← Protected full-screen builder
 ├── (auth)/         ← Public auth screens (Sign In, Sign Up, etc.)
 └── (marketing)/    ← Public marketing landing page
 ```
 
 **Route group `(app)`** shares a layout (`app/(app)/layout.tsx`) that wraps everything in:
 1. `AuthBootstrapProvider` — checks the session token on mount, redirects to `/sign-in` if unauthorized
-2. `AuthActivityProvider` — tracks mouse/keyboard activity and auto-logs out after 120 seconds of inactivity
-3. `AppShell` — renders the sidebar, top bar, workspace switcher, and content container
+2. `AppShell` — renders the top bar, workspace switcher, account menu, tab navigation, and content container (no sidebar)
 
-**Route group `(auth)`** shares its own layout with the two-column auth design: animated visual on the left, form on the right.
+`AuthActivityProvider` sits in the root layout and signs the user out after 30 minutes of inactivity.
+
+**Route group `(auth)`** shares its own layout: a single centred 400px column, with no decorative side panel.
 
 **Route group `(marketing)`** is fully server-rendered with no auth requirements.
 
-The builder route (`/builder`) uses dynamic imports to code-split the heavy editor components from the rest of the app:
-```ts
-const BuilderShell = dynamic(() => import("@/components/builder/builder-shell"), {
-  loading: () => <LoadingState ... />,
-  ssr: false,
-})
+**Route group `(editor)`** holds the builder (`/builder`). It's full screen with its own toolbar, so its code stays out of the other routes. The page streams in behind a skeleton:
+```tsx
+<Suspense fallback={<BuilderSkeleton />}>
+  <BuilderShell />
+</Suspense>
 ```
 
 ### Component Organization
@@ -264,18 +265,18 @@ Components are organized by domain, not by type:
 
 ```
 components/
-├── analytics/      ← MetricCard, TrafficChart, TopPagesTable
-├── auth/           ← AuthForm, AuthCard, AuthOrbitVisual, AuthSocialButton
+├── analytics/      ← AnalyticsOverview, TrafficChart
+├── app-shell/      ← AppShell, WorkspaceSwitcher, AccountMenu, CreateWorkspaceDialog
+├── auth/           ← SignInForm, SignUpForm, OAuthButtons, PasswordInput, AcceptInvite, OAuthCallback
+├── brand/          ← Logo
 ├── builder/        ← BlocksPanel, Canvas, PropertiesPanel, BuilderToolbar, BuilderShell
-├── layout/         ← AppShell, PageHeader
-├── marketing/      ← Hero, Features, PricingTeaser
-├── navigation/     ← Sidebar, Topbar, WorkspaceSwitcher, UserMenu
-├── projects/       ← ProjectCard, ProjectGrid
-├── providers/      ← QueryProvider, ThemeProvider, AuthBootstrapProvider, AuthActivityProvider
-├── settings/       ← WorkspaceSettingsPanel, BrandingSettingsPanel, SettingsNav
-├── shared/         ← EmptyState, ErrorState, LoadingState, Logo
-├── team/           ← MemberTable, InviteMemberModal
-└── ui/             ← shadcn/ui base components (Button, Card, Dialog, etc.)
+├── marketing/      ← SiteHeader, Reveal
+├── providers/      ← QueryProvider, AuthBootstrapProvider, AuthActivityProvider
+├── settings/       ← WorkspaceSettingsPanel, BrandingSettingsPanel
+├── shared/         ← NavTabs, PageHeader, EmptyState, ErrorState, Segmented, ThemeSwitch
+├── sites/          ← SitesTable, NewSiteDialog
+├── team/           ← InviteDialog
+└── ui/             ← Radix-based primitives restyled for SiteOrbit (Button, Dialog, Table, etc.)
 ```
 
 ### Backend Architecture
@@ -315,18 +316,18 @@ frontend/
 ├── app/
 │   ├── (app)/
 │   │   ├── analytics/page.tsx       # Analytics route
-│   │   ├── builder/page.tsx         # Builder route (dynamically loads BuilderShell)
-│   │   ├── dashboard/page.tsx       # Dashboard route
+│   │   ├── dashboard/page.tsx       # Sites home
 │   │   ├── domains/page.tsx         # Domains management
-│   │   ├── layout.tsx               # App shell layout — wraps all /app/* routes
-│   │   ├── projects/page.tsx        # Project grid
-│   │   ├── settings/page.tsx        # Workspace settings
-│   │   ├── team/page.tsx            # Team management
-│   │   └── templates/page.tsx       # Template gallery (placeholder)
+│   │   ├── layout.tsx               # App shell layout — top bar and tabs
+│   │   ├── settings/page.tsx        # Workspace, branding and billing tabs
+│   │   └── team/page.tsx            # Team management
+│   ├── (editor)/
+│   │   ├── builder/page.tsx         # Full-screen builder
+│   │   └── layout.tsx               # Auth check only, no app shell
 │   ├── (auth)/
 │   │   ├── accept-invite/page.tsx   # Invitation acceptance
 │   │   ├── forgot-password/page.tsx # Password recovery
-│   │   ├── layout.tsx               # Two-column auth layout
+│   │   ├── layout.tsx               # Single-column auth layout
 │   │   ├── sign-in/page.tsx         # Sign in page
 │   │   └── sign-up/page.tsx         # Sign up page
 │   ├── (marketing)/
@@ -334,8 +335,10 @@ frontend/
 │   │   └── page.tsx                 # Landing page
 │   ├── api/health/route.ts          # Frontend health check endpoint
 │   ├── oauth/callback/page.tsx      # OAuth exchange callback
-│   ├── globals.css                  # Global styles + Tailwind imports
-│   └── layout.tsx                   # Root layout — providers, fonts, meta
+│   ├── globals.css                  # Design tokens (both themes), type scale, motion
+│   ├── icon.svg, apple-icon.tsx     # Favicon and Apple touch icon
+│   ├── opengraph-image.tsx          # Social share image
+│   └── layout.tsx                   # Root layout — providers, fonts, meta, theme script
 │
 ├── components/                      # (see Component Organization above)
 │
@@ -343,12 +346,13 @@ frontend/
 │   ├── use-analytics.ts             # Analytics data fetching hook
 │   ├── use-auth.ts                  # Auth mutations and session management
 │   ├── use-builder.ts               # Builder page/layout data + mutations
-│   ├── use-dashboard.ts             # Dashboard overview fetching
+│   ├── use-document-title.ts        # Page titles for client-rendered routes
 │   ├── use-domains.ts               # Domain management hook
-│   ├── use-mobile.ts                # Mobile breakpoint detection
+│   ├── use-hydrated.ts              # True once the client has hydrated
 │   ├── use-projects.ts              # Project CRUD mutations
 │   ├── use-settings.ts              # Settings save/reset logic
 │   ├── use-team.ts                  # Team members data
+│   ├── use-theme.ts                 # Light / dark / system preference
 │   ├── use-unsaved-changes-warning.ts  # Beforeunload guard
 │   └── use-workspace.ts             # Workspace list + active workspace
 │
@@ -361,33 +365,23 @@ frontend/
 │   ├── config/
 │   │   └── site.ts                  # App metadata constants
 │   ├── constants/
-│   │   ├── navigation.ts            # Sidebar navigation items
-│   │   └── theme.ts                 # Theme mode constants
-│   ├── mocks/
-│   │   ├── analytics.ts             # Fallback analytics mock data
-│   │   ├── dashboard.ts             # Fallback dashboard mock data
-│   │   └── projects.ts              # Fallback project mock data
-│   ├── motion.ts                    # Framer Motion variants library
-│   ├── utils.ts                     # Re-export of cn
-│   ├── utils/cn.ts                  # Class merger (clsx + tailwind-merge)
-│   └── utils/format.ts              # Number, percent, date formatters
-│   ├── validators/
-│   │   ├── auth.ts                  # Zod schemas for sign-in/sign-up
-│   │   └── workspace.ts             # Zod schemas for workspace + invite forms
+│   │   ├── branding.ts              # Default theme for client sites
+│   │   └── roles.ts                 # Role labels and permission sets
+│   ├── theme.ts                     # Light/dark mode: storage, no-flash script
+│   ├── utils.ts                     # cn (clsx + tailwind-merge)
+│   ├── utils/format.ts              # Number, date and relative-time formatters, safe redirects
+│   └── validators/
+│       └── auth.ts                  # Zod schemas for sign-in/sign-up
 │
 ├── store/
 │   ├── auth-store.ts                # Zustand store — user, tokens, session
 │   ├── builder-store.ts             # Zustand store — blocks, viewport, save status
 │   └── workspace-store.ts           # Zustand store — workspaces, active workspace
 │
-├── styles/
-│   └── tokens.css                   # CSS custom property design tokens
-│
 ├── types/
 │   ├── analytics.ts                 # Analytics response types
 │   ├── auth.ts                      # Auth user, response, input types
 │   ├── builder.ts                   # Block types, viewport, save status
-│   ├── dashboard.ts                 # Dashboard response types
 │   ├── domain.ts                    # Domain types
 │   ├── invitation.ts                # Invitation types
 │   ├── project.ts                   # Project types
@@ -395,14 +389,20 @@ frontend/
 │   └── workspace.ts                 # Workspace, membership, role types
 │
 ├── docs/
-│   ├── ARCHITECTURE.md              # Frontend architecture notes
-│   └── ROUTES.md                    # Route documentation
+│   ├── PROGRESS.md                  # What's done and what's next
+│   ├── DECISIONS.md                 # Why things are the way they are
+│   ├── LEARNING.md                  # Learning path
+│   └── redesign/                    # Design system spec, page specs, screenshots
 │
-├── components.json                  # shadcn/ui configuration
+├── scripts/
+│   ├── design-lint.mjs              # Fails the build on off-system styles
+│   └── screenshots.mjs              # Review screenshots in both themes
+├── tests/                           # Playwright end-to-end, accessibility and design tests
+├── .github/                         # CI workflow, Dependabot, PR template
 ├── next.config.ts                   # Next.js configuration
 ├── package.json                     # Dependencies
 ├── postcss.config.mjs               # PostCSS + Tailwind config
-├── proxy.ts                         # Dev proxy (API passthrough)
+├── proxy.ts                         # Route protection (Next 16's replacement for middleware)
 ├── tsconfig.json                    # TypeScript configuration
 └── eslint.config.mjs                # ESLint configuration
 ```
@@ -480,11 +480,14 @@ backend/
 │   │   ├── test_health.py
 │   │   └── test_projects_pages_and_dashboard.py
 │   └── unit/
+│       ├── test_frontend_origins.py
 │       └── test_security.py
+├── .github/                         # CI workflow, Dependabot, PR template
 ├── alembic.ini                      # Alembic configuration placeholder
 ├── Procfile                         # Deployment process file (Render/Railway)
-├── pyproject.toml                   # Project metadata
-└── requirements.txt                 # Python dependencies
+├── pyproject.toml                   # Project metadata + pytest config
+├── requirements.txt                 # Python dependencies
+└── requirements-dev.txt             # Test dependencies (pytest, httpx)
 ```
 
 ---
@@ -652,7 +655,7 @@ A three-step flow using short-lived exchange tokens:
 The exchange token has a 5-minute TTL. It carries only the `user_id`, not any provider secrets.
 
 ### Inactivity Logout
-`AuthActivityProvider` listens to `mousemove`, `mousedown`, `keydown`, `scroll`, `touchstart`, `click`, and `visibilitychange`. If no activity is detected for 120 seconds, the session is cleared and the user is redirected to `/sign-in`.
+`AuthActivityProvider` listens to `mousemove`, `mousedown`, `keydown`, `scroll`, `touchstart`, `click`, and `visibilitychange`. If no activity is detected for 30 minutes, the session is cleared and the user is redirected to `/sign-in`.
 
 ---
 
@@ -717,7 +720,7 @@ The frontend mirrors this. The `useWorkspace` hook fetches all workspaces the us
 - `currentRole` — the user's role in that workspace
 - `setActiveWorkspaceId` — switches the active workspace (persisted in sessionStorage)
 
-Workspace data in the sidebar, top bar breadcrumb, project list, and builder all respond to the active workspace without page reloads.
+Workspace data in the top bar, sites list, and builder all respond to the active workspace without page reloads.
 
 ---
 
@@ -766,13 +769,13 @@ Global query defaults (set in `QueryProvider`):
 
 ## Performance Strategy
 
-- **Route-level code splitting:** the builder's heavy modules (canvas, dnd-kit, properties) are dynamically imported so the dashboard route stays fast
-- **No builder code on non-builder routes:** `BuilderShell` is loaded only when the builder route mounts
+- **Route-level code splitting:** the builder lives in its own `(editor)` route group, so its canvas and panels never load on the other routes
+- **No animation library:** all motion is CSS, so there's no animation runtime in the bundle
 - **TanStack Query caching:** workspace, project, and settings data are cached with `staleTime` — rapid navigation between routes doesn't re-fetch
 - **Memoization:** `useMemo` is used in `useBuilder` to parse `layout_json` only when the page record changes
 - **Skeleton loading:** all data-heavy screens use skeleton placeholders during initial load
 - **Image optimization:** Next.js `<Image>` used for all asset rendering
-- **CSS tokens over inline styles:** design tokens in `styles/tokens.css` reduce class bloat and enable theme-level changes
+- **CSS tokens over inline styles:** design tokens in `app/globals.css` reduce class bloat and power both themes
 - **Tree-shakeable icons:** Lucide React only bundles the icons that are actually imported
 - **Optimistic store updates:** workspace creation updates the TanStack Query cache directly before the invalidation refetch to prevent a loading flash
 
@@ -790,8 +793,8 @@ Global query defaults (set in `QueryProvider`):
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/siteorbit.git
-cd siteorbit/frontend
+git clone https://github.com/UzomaN-Hub/SiteOrbit.git
+cd SiteOrbit
 
 # Install dependencies
 npm install
@@ -804,12 +807,14 @@ cp .env.example .env.local
 npm run dev
 ```
 
-The app runs at `http://localhost:3000`.
+The app runs at `http://localhost:4317`.
 
 ### Backend Setup
 
+The backend is a separate, private repository (`SiteOrbit-Backend`).
+
 ```bash
-cd siteorbit/backend
+cd SiteOrbit-Backend
 
 # Create and activate a virtual environment
 python -m venv .venv
@@ -820,8 +825,8 @@ source .venv/bin/activate
 # On Windows (Git Bash):
 source .venv/Scripts/activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install dependencies (requirements-dev.txt adds the test tools)
+pip install -r requirements-dev.txt
 
 # Copy environment file
 cp .env.example .env
@@ -849,6 +854,8 @@ The API runs at `http://localhost:8000`. Interactive docs are at `http://localho
 | Variable | Description | Example |
 |---|---|---|
 | `NEXT_PUBLIC_API_URL` | Backend API base URL | `http://localhost:8000/api/v1` |
+| `NEXT_PUBLIC_APP_URL` | This app's public URL (metadata, share images) | `http://localhost:4317` |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Optional. Where "Contact sales" goes; LinkedIn if unset | `hello@example.com` |
 
 ### Backend (`.env`)
 
@@ -856,7 +863,8 @@ The API runs at `http://localhost:8000`. Interactive docs are at `http://localho
 |---|---|---|
 | `SECRET_KEY` | JWT signing secret | `change-me` |
 | `DATABASE_URL` | Database connection string | `sqlite:///./siteorbit.db` |
-| `FRONTEND_URL` | Frontend origin for CORS | `http://localhost:3000` |
+| `FRONTEND_URL` | Frontend origin for CORS and OAuth redirects | `http://localhost:4317` |
+| `FRONTEND_ORIGIN_REGEX` | Optional. Extra allowed origins (e.g. preview deploys) | unset |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token TTL | `60` |
 | `REFRESH_TOKEN_EXPIRE_DAYS` | Refresh token TTL | `30` |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID | optional |
@@ -877,18 +885,24 @@ pytest tests/ -v
 
 The test suite includes:
 - `tests/unit/test_security.py` — password hashing and JWT token generation
+- `tests/unit/test_frontend_origins.py` — allowed frontend origins for CORS and OAuth
 - `tests/integration/test_health.py` — health endpoint
 - `tests/integration/test_auth_and_workspace.py` — register, login, create workspace
 - `tests/integration/test_projects_pages_and_dashboard.py` — full CRUD flow
 
 The `conftest.py` fixture drops and recreates the SQLite test database before every test, so tests are fully isolated.
 
-### Frontend Lint
+### Frontend Checks
 
 ```bash
-cd frontend
-npm run lint
+npm run typecheck     # TypeScript
+npm run lint          # ESLint
+npm run lint:design   # design lint: no gradients, off-palette colours, dead links...
+npm run test:e2e      # Playwright: end-to-end, accessibility (axe) and design tests
+npm run check         # all of the above, plus a production build
 ```
+
+Playwright builds the app and serves it on port 4318. Signed-in tests need `E2E_EMAIL` and `E2E_PASSWORD` in `.env.test.local`. The same checks run in GitHub Actions on every pull request, and `main` only accepts squash-merged pull requests with green checks.
 
 ---
 
@@ -920,33 +934,33 @@ Set environment variables in your hosting provider's dashboard. Use a PostgreSQL
 
 ## Design System & Tokens
 
-The visual identity is defined in `styles/tokens.css` as CSS custom properties. Every color in the UI references these tokens:
+The visual identity is defined in `app/globals.css` as CSS custom properties. The full spec is in `docs/redesign/DESIGN.md`. Every colour in the UI references these tokens, and a design lint fails the build on anything else:
 
 ```css
---background:    220 39% 9%     /* Deep navy background */
---foreground:    225 61% 92%    /* Soft white text */
---primary:       171 66% 58%    /* Teal #4FDBC8 */
---secondary:     205 100% 77%   /* Sky blue #89CEFF */
---card:          225 27% 13%    /* Dark card surface */
---muted:         225 24% 16%    /* Muted surface */
---destructive:   4 100% 84%     /* Soft red for errors */
---border:        224 12% 28%    /* Subtle border color */
---radius:        0.75rem         /* Default border radius */
+--carbon: #111214;   /* dark background, light-mode text */
+--bone:   #ECEAE4;   /* dark-mode text */
+--amber:  #D9A520;   /* the one accent: primary button, Live, focus */
+--paper:  #FAF8F3;   /* light-mode background */
+
+/* Everything else is a mix of these, e.g. */
+--surface-1: color-mix(in srgb, var(--bone) 4%, var(--carbon));
+--border:    color-mix(in srgb, var(--bone) 12%, var(--carbon));
 ```
 
-**Fonts:**
-- Headings: **Sora** — rounded, bold, modern
-- Body: **Inter** — clean, readable, neutral
+- **Two themes:** dark and light, following the system setting until the visitor picks one. A tiny inline script applies the theme before the first paint, so there's no flash.
+- **One accent:** amber is used for one primary action per screen, Live status, focus rings and errors. No gradients, glows or blur.
+- **Radius by role:** 3px badges, 6px buttons and inputs, 10px cards, 16px dialogs.
 
-**Motion library (`lib/motion.ts`):**
-Named Framer Motion variants used consistently across the app:
-- `pageReveal` — full page fade + slide in
-- `cardReveal` — card entrance animation
-- `staggerContainer` — parent that staggers children
-- `panelSlideUp` / `panelSlideLeft` — panel entrance
-- `subtlePulse` — slow opacity pulse (used for saving indicators)
-- `pulseGlow` — background glow animation (settings cards)
-- `easeBezier` — custom `[0.22, 1, 0.36, 1]` ease curve
+**Fonts:**
+- Headings: **Fraunces** — a characterful serif
+- Body and UI: **Hanken Grotesk** — clean and readable
+
+**Motion (CSS only):**
+- Hero headline rises in word by word
+- Sections reveal once as they scroll into view (one shared IntersectionObserver)
+- Tab underline slides between tabs
+- Menus and dialogs rise 4px and fade in
+- With JavaScript off everything is visible; with reduced motion turned on, nothing moves
 
 ---
 
