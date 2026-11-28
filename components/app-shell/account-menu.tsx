@@ -1,23 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { CreditCard, LogOut, Settings } from "lucide-react";
+import { CreditCard, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
 
+import { themeOptions } from "@/components/shared/theme-switch";
 import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
+  DropdownMenuCheckItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useTheme } from "@/hooks/use-theme";
+
+const themeIcons = { system: Monitor, light: Sun, dark: Moon };
 
 export default function AccountMenu() {
   const hydrated = useHydrated();
   const { user, signOut } = useAuth();
+  const { preference, setPreference } = useTheme();
 
   if (!hydrated) {
     return <Skeleton className="size-8 rounded-full" data-allow-round />;
@@ -58,6 +65,24 @@ export default function AccountMenu() {
             Billing
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>Theme</DropdownMenuLabel>
+        {themeOptions.map((option) => {
+          const Icon = themeIcons[option.value];
+          return (
+            <DropdownMenuCheckItem
+              key={option.value}
+              checked={preference === option.value}
+              onSelect={(event) => {
+                event.preventDefault();
+                setPreference(option.value);
+              }}
+            >
+              <Icon />
+              {option.label}
+            </DropdownMenuCheckItem>
+          );
+        })}
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void handleSignOut()}>
           <LogOut />

@@ -7,6 +7,7 @@ import AuthActivityProvider from "@/components/providers/auth-activity-provider"
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { siteConfig } from "@/lib/config/site";
+import { themeScript } from "@/lib/theme";
 
 const display = Fraunces({
   subsets: ["latin"],
@@ -45,8 +46,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#111214",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf8f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#111214" },
+  ],
+  colorScheme: "dark light",
 };
 
 export default function RootLayout({
@@ -59,6 +63,9 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${display.variable} ${sans.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>
         <QueryProvider>
           <TooltipProvider delayDuration={300}>

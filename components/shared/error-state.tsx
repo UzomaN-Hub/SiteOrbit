@@ -26,10 +26,10 @@ export default function ErrorState({
   return (
     <div
       role="alert"
-      className="flex flex-col items-start gap-3 rounded-md border border-brand bg-surface-1 p-6"
+      className="flex flex-col items-start gap-3 rounded-md border border-brand-ink bg-surface-1 p-6"
     >
       <div className="flex items-center gap-2">
-        <AlertTriangle className="size-4 text-brand" strokeWidth={1.5} aria-hidden="true" />
+        <AlertTriangle className="size-4 text-brand-ink" strokeWidth={1.5} aria-hidden="true" />
         <h3 className="type-ui text-text">{title}</h3>
       </div>
       <p className="type-body text-text-muted prose-width">

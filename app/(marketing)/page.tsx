@@ -7,6 +7,7 @@ import Logo from "@/components/brand/logo";
 import { GitHubIcon } from "@/components/auth/oauth-buttons";
 import Reveal from "@/components/marketing/reveal";
 import SiteHeader from "@/components/marketing/site-header";
+import ThemeSwitch from "@/components/shared/theme-switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/config/site";
@@ -153,6 +154,7 @@ export default function LandingPage() {
             className="hero-follow overflow-hidden rounded-lg border border-border bg-surface-1"
             style={{ "--follow-delay": `calc(${followDelay} + 80ms)` } as React.CSSProperties}
           >
+            {/* One screenshot per theme; CSS shows the one that matches. */}
             <Image
               src="/images/hero-product.png"
               alt="The SiteOrbit Sites page: a workspace's sites listed with their status and last update."
@@ -160,7 +162,16 @@ export default function LandingPage() {
               height={600}
               priority
               sizes="(min-width: 1024px) 560px, 100vw"
-              className="h-auto w-full"
+              className="h-auto w-full light:hidden"
+            />
+            <Image
+              src="/images/hero-product-light.png"
+              alt="The SiteOrbit Sites page: a workspace's sites listed with their status and last update."
+              width={1200}
+              height={600}
+              priority
+              sizes="(min-width: 1024px) 560px, 100vw"
+              className="hidden h-auto w-full light:block"
             />
           </figure>
         </section>
@@ -300,27 +311,30 @@ export default function LandingPage() {
               © {siteConfig.currentYear()} SiteOrbit
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            <Button asChild variant="ghost" size="icon-sm">
-              <a
-                href={siteConfig.links.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="SiteOrbit on GitHub"
-              >
-                <GitHubIcon />
-              </a>
-            </Button>
-            <Button asChild variant="ghost" size="icon-sm">
-              <a
-                href={siteConfig.links.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="SiteOrbit on LinkedIn"
-              >
-                <LinkedInIcon />
-              </a>
-            </Button>
+          <div className="flex flex-wrap items-center gap-4">
+            <ThemeSwitch />
+            <div className="flex items-center gap-1">
+              <Button asChild variant="ghost" size="icon-sm">
+                <a
+                  href={siteConfig.links.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="SiteOrbit on GitHub"
+                >
+                  <GitHubIcon />
+                </a>
+              </Button>
+              <Button asChild variant="ghost" size="icon-sm">
+                <a
+                  href={siteConfig.links.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="SiteOrbit on LinkedIn"
+                >
+                  <LinkedInIcon />
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </footer>

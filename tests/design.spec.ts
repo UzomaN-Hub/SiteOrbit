@@ -2,28 +2,31 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { hasCredentials, publicPages, signIn } from "./helpers";
 
-// carbon, bone, amber
+// carbon, bone, amber, and paper (the light-mode background)
 const PALETTE: [number, number, number][] = [
   [17, 18, 20],
   [236, 234, 228],
   [217, 165, 32],
+  [250, 248, 243],
 ];
 
-/** True if rgb is one of the three colours, or a mix of them over carbon. */
-function onPalette([r, g, b]: number[]) {
-  const [carbon] = PALETTE;
-  return PALETTE.some(([pr, pg, pb]) => {
-    // Solve for t in mix(colour, carbon, t) on the dominant channel and check the rest.
-    const channels: [number, number, number][] = [
-      [r, pr, carbon[0]],
-      [g, pg, carbon[1]],
-      [b, pb, carbon[2]],
-    ];
-    const [cr, cp, cc] = channels.reduce((a, c) => (Math.abs(c[1] - c[2]) > Math.abs(a[1] - a[2]) ? c : a));
-    const t = cp === cc ? 1 : (cr - cc) / (cp - cc);
-    if (t < -0.02 || t > 1.02) return false;
-    return channels.every(([value, p, c]) => Math.abs(c + (p - c) * t - value) <= 6);
-  });
+/** True if rgb lies on the line between two palette colours (a colour-mix of them). */
+function onMix([r, g, b]: number[], from: number[], to: number[]) {
+  const channels: [number, number, number][] = [
+    [r, from[0], to[0]],
+    [g, from[1], to[1]],
+    [b, from[2], to[2]],
+  ];
+  // Solve for t in mix(from, to, t) on the channel with the widest range, then check the rest.
+  const [cr, cf, ct] = channels.reduce((a, c) => (Math.abs(c[1] - c[2]) > Math.abs(a[1] - a[2]) ? c : a));
+  const t = cf === ct ? 0 : (cr - cf) / (ct - cf);
+  if (t < -0.02 || t > 1.02) return false;
+  return channels.every(([value, f, c]) => Math.abs(f + (c - f) * t - value) <= 6);
+}
+
+/** True if rgb is a palette colour or a mix of any two of them. */
+function onPalette(rgb: number[]) {
+  return PALETTE.some((from, i) => PALETTE.some((to, j) => i < j && onMix(rgb, from, to)));
 }
 
 async function collectColours(page: Page) {
@@ -114,19 +117,26 @@ async function checkPage(page: Page) {
   for (const value of radii.card) expect(value).toBe("10px");
 }
 
-for (const path of publicPages) {
-  test(`design system holds on ${path}`, async ({ page }) => {
-    await page.goto(path);
-    await checkPage(page);
+for (const theme of ["dark", "light"] as const) {
+  test.describe(`${theme} theme`, () => {
+    test.use({ colorScheme: theme });
+
+    for (const path of publicPages) {
+      test(`design system holds on ${path}`, async ({ page }) => {
+        await page.goto(path);
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        await checkPage(page);
+      });
+    }
+
+    test("design system holds on the dashboard", async ({ page }) => {
+      test.skip(!hasCredentials, "Needs E2E_EMAIL and E2E_PASSWORD.");
+      await signIn(page);
+      await page.getByRole("heading", { level: 1, name: "Sites" }).waitFor();
+      await checkPage(page);
+    });
   });
 }
-
-test("design system holds on the dashboard", async ({ page }) => {
-  test.skip(!hasCredentials, "Needs E2E_EMAIL and E2E_PASSWORD.");
-  await signIn(page);
-  await page.getByRole("heading", { level: 1, name: "Sites" }).waitFor();
-  await checkPage(page);
-});
 
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });

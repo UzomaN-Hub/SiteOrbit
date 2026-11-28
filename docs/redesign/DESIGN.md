@@ -20,7 +20,18 @@ SiteOrbit uses exactly **three colours**. Every other shade is one of them at re
 | `bone` | `#ECEAE4` | Text, icons, borders and surfaces (at opacity). |
 | `amber` | `#D9A520` | Accent: primary action, live status, focus ring, attention. |
 
-The theme is dark only. A light theme is out of scope.
+There are two themes. Dark is described below. Light mode adds one more base colour, **paper** `#FAF8F3`, as the background, and uses carbon where dark mode uses bone:
+
+| Token | Light value |
+|---|---|
+| `--bg` | paper |
+| `--surface-1` / `--surface-2` | carbon 4% / 7% over paper |
+| `--border` / `--border-strong` | carbon 13% / 28% over paper |
+| `--text` / `--text-muted` / `--text-faint` | carbon / carbon 70% / carbon 50% over paper |
+| `--brand` | amber (button fills stay bright) |
+| `--brand-ink` | amber 66% mixed with carbon: dots, icons, outlines and the focus ring, which need 3:1 on paper |
+
+The theme follows the system setting until the visitor picks System, Light or Dark (account menu, landing footer). The builder canvas is always light, so client pages are previewed the way most of them will be seen. Thin amber elements use `--brand-ink` in both themes (it equals amber in dark mode).
 
 ### Derived tokens (all from the three above)
 
@@ -39,6 +50,7 @@ Define these as CSS variables with `color-mix(in srgb, …)`. Don't hard-code th
 | `--accent` | amber | Primary button fill, live dot, focus ring, selected block in builder |
 | `--accent-hover` | amber 88% mixed with bone | Primary button hover |
 | `--on-accent` | carbon | Text and icons on amber |
+| `--brand-ink` | amber | Thin amber things: live dot, error icons and borders, logo dot, chart dot, selected block |
 | `--focus-ring` | amber 50% opacity | 3px focus ring outside the border |
 
 ### Rules

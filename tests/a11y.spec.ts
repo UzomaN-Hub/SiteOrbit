@@ -21,13 +21,28 @@ async function seriousViolations(page: import("@playwright/test").Page) {
     .map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(" ")).join(", ")}`);
 }
 
-for (const path of publicPages) {
-  test(`${path} has no serious accessibility violations`, async ({ page }) => {
-    await page.goto(path);
-    await page.waitForLoadState("networkidle");
-    expect(await seriousViolations(page)).toEqual([]);
-  });
+for (const theme of ["dark", "light"] as const) {
+  test.describe(`${theme} theme`, () => {
+    test.use({ colorScheme: theme });
 
+    for (const path of publicPages) {
+      test(`${path} has no serious accessibility violations`, async ({ page }) => {
+        await page.goto(path);
+        await page.waitForLoadState("networkidle");
+        expect(await seriousViolations(page)).toEqual([]);
+      });
+    }
+
+    test("the dashboard has no serious accessibility violations", async ({ page }) => {
+      test.skip(!hasCredentials, "Needs E2E_EMAIL and E2E_PASSWORD.");
+      await signIn(page);
+      await page.getByRole("heading", { level: 1, name: "Sites" }).waitFor();
+      expect(await seriousViolations(page)).toEqual([]);
+    });
+  });
+}
+
+for (const path of publicPages) {
   test(`${path}: keyboard reaches the main action with a visible focus ring`, async ({ page }) => {
     await page.goto(path);
     const target = path === "/" ? "Start free" : path === "/sign-in" ? "Sign in" : "Create account";
@@ -46,10 +61,3 @@ for (const path of publicPages) {
     expect(outline).not.toBe("none");
   });
 }
-
-test("the dashboard has no serious accessibility violations", async ({ page }) => {
-  test.skip(!hasCredentials, "Needs E2E_EMAIL and E2E_PASSWORD.");
-  await signIn(page);
-  await page.getByRole("heading", { level: 1, name: "Sites" }).waitFor();
-  expect(await seriousViolations(page)).toEqual([]);
-});
