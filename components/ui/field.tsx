@@ -49,7 +49,7 @@ function FieldError({
     >
       <AlertTriangle
         aria-hidden="true"
-        className="mt-px size-3.5 shrink-0 text-brand"
+        className="mt-px size-3.5 shrink-0 text-brand-ink"
         strokeWidth={1.5}
       />
       {message}
@@ -65,13 +65,13 @@ function FormAlert({ message, className }: { message?: string | null; className?
     <div
       role="alert"
       className={cn(
-        "flex items-start gap-3 rounded-sm border border-brand bg-surface-1 px-3 py-3 type-body text-text",
+        "flex items-start gap-3 rounded-sm border border-brand-ink bg-surface-1 px-3 py-3 type-body text-text",
         className
       )}
     >
       <AlertTriangle
         aria-hidden="true"
-        className="mt-0.5 size-4 shrink-0 text-brand"
+        className="mt-0.5 size-4 shrink-0 text-brand-ink"
         strokeWidth={1.5}
       />
       <span>{message}</span>

@@ -81,7 +81,7 @@ export default function TrafficChart({ data }: { data: AnalyticsTrafficPoint[] }
             strokeWidth={1.5}
             fill="currentColor"
             fillOpacity={0.08}
-            activeDot={{ r: 4, strokeWidth: 0, className: "fill-brand" }}
+            activeDot={{ r: 4, strokeWidth: 0, className: "fill-brand-ink" }}
             animationDuration={300}
           />
           <Line
@@ -92,7 +92,7 @@ export default function TrafficChart({ data }: { data: AnalyticsTrafficPoint[] }
             strokeWidth={1.5}
             strokeDasharray="4 4"
             dot={false}
-            activeDot={{ r: 3, strokeWidth: 0, className: "fill-brand" }}
+            activeDot={{ r: 3, strokeWidth: 0, className: "fill-brand-ink" }}
             animationDuration={300}
           />
         </AreaChart>

@@ -24,6 +24,8 @@
   /* Named --brand (not --accent) so it can't collide with shadcn's --accent. */
   --brand: var(--amber);
   --brand-hover: color-mix(in srgb, var(--amber) 88%, var(--bone));
+  /* Amber for thin things (dots, icons, outlines). Darker in light mode for contrast. */
+  --brand-ink: var(--amber);
   --on-brand: var(--carbon);
   --focus-ring: color-mix(in srgb, var(--amber) 50%, transparent);
   --scrim: color-mix(in srgb, var(--carbon) 72%, transparent);
@@ -44,6 +46,36 @@
 
   color-scheme: dark;
 }
+
+/*
+ * Light mode: warm paper with carbon ink. Same three colours plus paper.
+ * Set on <html> by the theme script in app/layout.tsx, and on the builder
+ * canvas so client pages are always previewed on a light page.
+ */
+[data-theme="light"] {
+  --paper: #faf8f3;
+
+  --bg: var(--paper);
+  --surface-1: color-mix(in srgb, var(--carbon) 4%, var(--paper));
+  --surface-2: color-mix(in srgb, var(--carbon) 7%, var(--paper));
+  --border: color-mix(in srgb, var(--carbon) 13%, var(--paper));
+  --border-strong: color-mix(in srgb, var(--carbon) 28%, var(--paper));
+  --text: var(--carbon);
+  --text-muted: color-mix(in srgb, var(--carbon) 70%, var(--paper));
+  --text-faint: color-mix(in srgb, var(--carbon) 50%, var(--paper));
+  --brand: var(--amber);
+  --brand-hover: color-mix(in srgb, var(--amber) 86%, var(--carbon));
+  --brand-ink: color-mix(in srgb, var(--amber) 66%, var(--carbon));
+  --on-brand: var(--carbon);
+  --focus-ring: var(--brand-ink);
+  --scrim: color-mix(in srgb, var(--carbon) 40%, transparent);
+  --shadow-float: 0 8px 24px rgb(17 18 20 / 0.12);
+
+  color-scheme: light;
+}
+
+/* light:… applies a class only in light mode (e.g. to swap screenshots). */
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
 
 @theme inline {
   /* Wipe Tailwind's defaults so nothing can silently use them. */
@@ -67,6 +99,7 @@
   --color-text-faint: var(--text-faint);
   --color-brand: var(--brand);
   --color-brand-hover: var(--brand-hover);
+  --color-brand-ink: var(--brand-ink);
   --color-on-brand: var(--on-brand);
   --color-scrim: var(--scrim);
 
@@ -374,7 +407,7 @@ html.js-reveal [data-reveal]:not(.is-visible) .draw-line {
 
 /* Builder: the selected block gets a 1.5px amber outline. */
 .block-selected {
-  outline: 1.5px solid var(--brand);
+  outline: 1.5px solid var(--brand-ink);
   outline-offset: 4px;
 }
 

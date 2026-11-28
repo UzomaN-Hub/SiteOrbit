@@ -17,7 +17,7 @@ export function LogoMark({ size = 26, className }: LogoMarkProps) {
     >
       <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.5" />
       <g className="logo-orbit" style={{ transformOrigin: "12px 12px" }}>
-        <circle cx="18.01" cy="5.99" r="3.1" className="fill-brand" />
+        <circle cx="18.01" cy="5.99" r="3.1" className="fill-brand-ink" />
       </g>
     </svg>
   );

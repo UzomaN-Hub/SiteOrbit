@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Captures review screenshots (TESTING.md §4) at 390px and 1440px, plus the
- * landing-page hero image. Run against a local stack:
+ * Captures review screenshots (TESTING.md §4) at 390px and 1440px in both
+ * themes, plus the landing-page hero image for each theme. Run against a local stack:
  *
  *   API_URL=http://localhost:8417/api/v1 APP_URL=http://localhost:4317 \
  *   SEED=1 node scripts/screenshots.mjs
@@ -110,11 +110,12 @@ async function seed() {
 
 const HIDE_DEV = "nextjs-portal{display:none!important}";
 
-async function shoot(page, name, width) {
+async function shoot(page, name, width, theme) {
   await page.addStyleTag({ content: HIDE_DEV });
   await page.waitForTimeout(900);
-  await page.screenshot({ path: `${OUT}/${name}-${width}.png`, fullPage: true });
-  console.log(`  ${name}-${width}.png`);
+  const file = `${name}-${width}${theme === "light" ? "-light" : ""}.png`;
+  await page.screenshot({ path: `${OUT}/${file}`, fullPage: true });
+  console.log(`  ${file}`);
 }
 
 async function main() {
@@ -123,65 +124,57 @@ async function main() {
 
   const browser = await chromium.launch();
 
-  for (const width of [1440, 390]) {
+  // Four sign-ins in total: the API allows five a minute.
+  for (const theme of ["dark", "light"]) for (const width of [1440, 390]) {
     const context = await browser.newContext({
       viewport: { width, height: width === 390 ? 844 : 900 },
       deviceScaleFactor: width === 390 ? 2 : 1,
       reducedMotion: "reduce",
+      colorScheme: theme,
     });
     const page = await context.newPage();
 
     await page.goto(`${APP}/`);
-    await shoot(page, "landing", width);
+    await shoot(page, "landing", width, theme);
     await page.goto(`${APP}/sign-up`);
-    await shoot(page, "sign-up", width);
+    await shoot(page, "sign-up", width, theme);
     await page.goto(`${APP}/sign-in`);
-    await shoot(page, "sign-in", width);
+    await shoot(page, "sign-in", width, theme);
 
     await page.getByLabel("Email").fill(EMAIL);
     await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
     await page.getByRole("button", { name: "Sign in" }).click();
     await page.waitForURL("**/dashboard");
     await page.getByRole("table").waitFor();
-    await shoot(page, "dashboard", width);
+    await shoot(page, "dashboard", width, theme);
+
+    if (width === 1440) {
+      // Landing-page hero: the Sites page at 1600px, cropped to the content
+      // column so it still reads at ~480px wide.
+      await page.setViewportSize({ width: 1600, height: 720 });
+      await page.waitForTimeout(600);
+      const hero = `public/images/hero-product${theme === "light" ? "-light" : ""}.png`;
+      await page.screenshot({ path: hero, clip: { x: 200, y: 0, width: 1200, height: 600 } });
+      console.log(`  ${hero}`);
+      await page.setViewportSize({ width, height: 900 });
+    }
 
     await page.goto(`${APP}/team`);
     await page.getByRole("table").first().waitFor();
-    await shoot(page, "team", width);
+    await shoot(page, "team", width, theme);
 
     await page.goto(`${APP}/settings?tab=branding`);
     await page.getByText("Client brand").waitFor();
-    await shoot(page, "settings-branding", width);
+    await shoot(page, "settings-branding", width, theme);
 
     await page.goto(`${APP}/dashboard`);
     await page.getByRole("link", { name: "Harbour Dental" }).click();
     await page.getByRole("button", { name: /Edit Hero section/ }).waitFor();
     await page.getByRole("button", { name: /Edit Hero section/ }).click();
-    await shoot(page, "builder", width);
+    await shoot(page, "builder", width, theme);
 
     await context.close();
   }
-
-  // Hero image for the landing page: the Sites page at 1600px wide.
-  const context = await browser.newContext({
-    viewport: { width: 1600, height: 720 },
-    reducedMotion: "reduce",
-  });
-  const page = await context.newPage();
-  await page.goto(`${APP}/sign-in`);
-  await page.getByLabel("Email").fill(EMAIL);
-  await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.waitForURL("**/dashboard");
-  await page.getByRole("table").waitFor();
-  await page.addStyleTag({ content: HIDE_DEV });
-  await page.waitForTimeout(900);
-  // Crop to the content column so it still reads at ~480px on the landing page.
-  await page.screenshot({
-    path: "public/images/hero-product.png",
-    clip: { x: 200, y: 0, width: 1200, height: 600 },
-  });
-  console.log("  public/images/hero-product.png");
 
   await browser.close();
 }

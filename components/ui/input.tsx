@@ -7,7 +7,7 @@ export const fieldControlClass = cn(
   "transition-[border-color,background-color] duration-(--dur-fast) ease-brand",
   "hover:border-border-strong focus-visible:border-text-muted",
   "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border",
-  "aria-invalid:border-brand aria-invalid:hover:border-brand"
+  "aria-invalid:border-brand-ink aria-invalid:hover:border-brand-ink"
 );
 
 type InputProps = Omit<React.ComponentProps<"input">, "size"> & {

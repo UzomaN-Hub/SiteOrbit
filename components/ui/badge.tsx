@@ -55,7 +55,7 @@ function StatusDot({
         data-allow-round
         className={cn(
           "size-2 shrink-0 rounded-full",
-          isLive ? "bg-brand" : "border-[1.5px] border-text-muted"
+          isLive ? "bg-brand-ink" : "border-[1.5px] border-text-muted"
         )}
       />
       {label ?? statusLabels[tone]}

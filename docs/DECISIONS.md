@@ -4,6 +4,15 @@ Why things are the way they are, grouped by session. Each entry: the context, wh
 
 ---
 
+## 2026-11-28 · Light mode
+
+### D-019 · Light mode without a library
+**Context.** Uzoma asked for a light mode: a white background with amber and black for buttons and surfaces. The redesign was dark only (D-004 removed `next-themes` for that reason).
+**Decision.** A second set of token values in `app/globals.css` under `[data-theme="light"]`. The background is a warm paper (`#FAF8F3`) rather than pure white, which makes amber look harsh. A small inline script in `app/layout.tsx` sets `data-theme` before the first paint (no flash) and follows the system setting unless the visitor has chosen. The choice is kept in localStorage. Amber is too pale on paper for thin things, so a new `--brand-ink` token (amber mixed with carbon in light mode) is used for dots, icons, outlines and the focus ring, while buttons keep bright amber with black text. The builder canvas sets `data-theme="light"` so client pages always preview on a light page. The landing page has one hero screenshot per theme.
+**Cost.** About 30 lines of code instead of a dependency. Visitors with JavaScript off get the dark theme. The design and accessibility tests now run in both themes, so the suite is longer (86 tests).
+
+---
+
 ## 2026-11-27 · Redesign v2
 
 ### D-014 · Delivered the redesign as one branch, not one PR per phase

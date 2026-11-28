@@ -7,15 +7,15 @@ import { Toaster as Sonner } from "sonner";
 function Toaster() {
   return (
     <Sonner
-      theme="dark"
+      theme="system"
       position="bottom-right"
       duration={4000}
       gap={8}
       icons={{
         success: <Check className="size-4" strokeWidth={1.5} />,
-        error: <AlertTriangle className="size-4 text-brand" strokeWidth={1.5} />,
+        error: <AlertTriangle className="size-4 text-brand-ink" strokeWidth={1.5} />,
         info: <Info className="size-4" strokeWidth={1.5} />,
-        warning: <AlertTriangle className="size-4 text-brand" strokeWidth={1.5} />,
+        warning: <AlertTriangle className="size-4 text-brand-ink" strokeWidth={1.5} />,
       }}
       toastOptions={{
         unstyled: true,

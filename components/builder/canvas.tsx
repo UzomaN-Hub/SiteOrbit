@@ -103,9 +103,11 @@ export default function Canvas({
 }: CanvasProps) {
   return (
     <div className="min-h-[60vh] bg-surface-1 p-4 sm:p-8 xl:h-[calc(100dvh-64px)] xl:overflow-y-auto">
+      {/* Client pages are previewed on a light page in both themes. */}
       <div
+        data-theme="light"
         className={cn(
-          "@container mx-auto min-h-full rounded-md border border-border bg-bg transition-[max-width] duration-(--dur-base) ease-brand",
+          "@container mx-auto min-h-full rounded-md border border-border bg-bg text-text transition-[max-width] duration-(--dur-base) ease-brand",
           viewportWidth[viewport]
         )}
       >
